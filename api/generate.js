@@ -415,7 +415,7 @@ module.exports = function (req, res) {
        { role: "system", content: system },
        { role: "user",   content: user }
      ],
-     max_tokens: 4000,
+     max_tokens: 8000,
      temperature: 0.7,
      stream: true
    });
