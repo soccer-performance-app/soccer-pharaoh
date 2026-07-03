@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#00e5a0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pitch Condition">
+<title>PITCH CONDITION — AI Soccer Performance Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0b0d; --surface:#111318; --surface2:#181c22;
+    --border:#1f2430; --border2:#2a3040;
+    --accent:#00e5a0; --accent2:#00b87a; --accent-dim:rgba(0,229,160,0.08);
+    --amber:#f5a623; --amber-dim:rgba(245,166,35,0.10); --amber2:rgba(245,166,35,0.18);
+    --red:#ff4f4f; --red-dim:rgba(255,79,79,0.09); --red2:rgba(255,79,79,0.18);
+    --blue:#4da6ff; --blue-dim:rgba(77,166,255,0.09); --blue2:rgba(77,166,255,0.18);
+    --purple:#9b6dff; --purple-dim:rgba(155,109,255,0.08); --purple2:rgba(155,109,255,0.18);
+    --orange:#ff8a3d; --orange-dim:rgba(255,138,61,0.09); --orange2:rgba(255,138,61,0.20);
+    --text:#e8eaf0; --text2:#8a92a6; --text3:#4a5268;
+    --mono:'JetBrains Mono',monospace; --display:'Barlow Condensed',sans-serif; --body:'Barlow',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,160,0.013) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.013) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+  .container{max-width:900px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  /* ── HEADER ── */
+  header{padding:24px 0;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  .logo-mark{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
+  .logo-icon{width:36px;height:36px;border:1.5px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .logo-icon::before{content:'';position:absolute;width:20px;height:20px;border:1.5px solid var(--accent);border-radius:50%;}
+  .logo-icon::after{content:'';position:absolute;width:20px;height:1.5px;background:var(--accent);}
+  .logo-text{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);}
+  .logo-text span{color:var(--accent);}
+  .version-badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--accent2);padding:2px 8px;border-radius:2px;letter-spacing:0.1em;background:var(--accent-dim);}
+  .tagline{font-size:12px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;text-transform:uppercase;}
+
+  /* ── HERO ── */
+  .hero{padding:80px 0 72px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,160,0.06) 0%,transparent 70%);pointer-events:none;}
+  .hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);}
+  .hero-headline{font-family:var(--display);font-size:clamp(36px,7vw,72px);font-weight:900;line-height:0.95;letter-spacing:0.01em;text-transform:uppercase;color:var(--text);margin-bottom:28px;max-width:780px;}
+  .hero-headline span{color:var(--accent);}
+  .hero-sub{font-size:17px;color:var(--text2);line-height:1.65;max-width:520px;margin-bottom:40px;font-weight:300;}
+  .hero-sub strong{color:var(--text);font-weight:500;}
+  .hero-cta-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .btn-hero{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:18px 48px;border-radius:4px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+  .btn-hero:hover{background:#00ffb3;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,229,160,0.25);}
+  .hero-price{font-family:var(--mono);font-size:12px;color:var(--text3);letter-spacing:0.08em;}
+  .hero-price strong{color:var(--accent2);}
+  .hero-stats{display:flex;gap:40px;margin-top:56px;padding-top:40px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .hero-stat .num{font-family:var(--display);font-size:36px;font-weight:800;color:var(--accent);letter-spacing:0.02em;line-height:1;}
+  .hero-stat .lbl{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--text3);text-transform:uppercase;margin-top:6px;}
+
+  /* ── WHAT YOU GET ── */
+  .section-block{padding:72px 0;border-bottom:1px solid var(--border);}
+  .section-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .section-eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);}
+  .section-heading{font-family:var(--display);font-size:clamp(28px,5vw,48px);font-weight:800;text-transform:uppercase;letter-spacing:0.02em;color:var(--text);margin-bottom:12px;line-height:1.05;}
+  .section-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:520px;margin-bottom:48px;font-weight:300;}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:700px){.features-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:480px){.features-grid{grid-template-columns:1fr;}}
+  .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;transition:border-color 0.2s,transform 0.2s;}
+  .feature-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+  .feature-icon{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:16px;}
+  .feature-card-title{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:8px;}
+  .feature-card-desc{font-size:13px;color:var(--text2);line-height:1.65;}
+
+  /* ── HOW IT WORKS ── */
+  .steps{display:flex;flex-direction:column;gap:0;}
+  .step{display:flex;gap:24px;padding:28px 0;border-bottom:1px solid var(--border);}
+  .step:last-child{border-bottom:none;}
+  .step-num{font-family:var(--display);font-size:48px;font-weight:900;color:var(--border2);line-height:1;flex-shrink:0;width:56px;}
+  .step-content{}
+  .step-title{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:6px;}
+  .step-desc{font-size:14px;color:var(--text2);line-height:1.65;}
+
+  /* ── TESTIMONIALS ── */
+  .testimonials-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:600px){.testimonials-grid{grid-template-columns:1fr;}}
+  .testimonial-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px;}
+  .testimonial-stars{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:14px;}
+  .testimonial-text{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:20px;font-style:italic;}
+  .testimonial-author{display:flex;align-items:center;gap:12px;}
+  .testimonial-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:700;color:var(--accent);}
+  .testimonial-name{font-family:var(--mono);font-size:11px;color:var(--text);letter-spacing:0.06em;text-transform:uppercase;}
+  .testimonial-role{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.04em;margin-top:2px;}
+
+  /* ── PRICING BANNER ── */
+  .pricing-banner{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:48px 40px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;margin-bottom:72px;position:relative;overflow:hidden;}
+  .pricing-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,229,160,0.07) 0%,transparent 70%);pointer-events:none;}
+  .pricing-banner-left{}
+  .pricing-banner-label{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .pricing-banner-title{font-family:var(--display);font-size:32px;font-weight:800;text-transform:uppercase;color:var(--text);letter-spacing:0.02em;line-height:1.1;margin-bottom:8px;}
+  .pricing-banner-desc{font-size:14px;color:var(--text2);line-height:1.6;}
+  .pricing-banner-right{text-align:right;flex-shrink:0;}
+  .pricing-amount{font-family:var(--display);font-size:56px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:0.02em;}
+  .pricing-amount span{font-size:20px;color:var(--text2);}
+  .pricing-note{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;margin-top:4px;}
+
+  /* ── FORM SECTION ── */
+  #intake-section{display:none;}
+  #program-section{display:none;}
+  .form-section-header{padding:72px 0 40px;border-top:1px solid var(--border);}
+  .section-label{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
+  .section-title{font-family:var(--display);font-size:42px;font-weight:700;line-height:1;letter-spacing:0.02em;margin-bottom:8px;text-transform:uppercase;}
+  .section-subtitle{font-size:15px;color:var(--text2);font-weight:300;line-height:1.6;margin-bottom:40px;max-width:560px;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+  .form-grid.full{grid-template-columns:1fr;}
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;color:var(--text2);text-transform:uppercase;}
+  .field select,.field input[type="number"],.field input[type="text"]{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--body);font-size:14px;padding:12px 16px;border-radius:4px;outline:none;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none;}
+  .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a92a6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+  .field select:focus,.field input:focus{border-color:var(--accent2);background:var(--surface2);}
+  .field select option{background:#1a1e28;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
+  @media(max-width:640px){.cal-grid{grid-template-columns:repeat(4,1fr);}}
+  .cal-day{display:flex;flex-direction:column;gap:6px;}
+  .cal-day-name{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);text-align:center;padding-bottom:4px;}
+  .cal-cell{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;min-height:72px;justify-content:center;}
+  .cal-cell:hover{border-color:var(--border);background:var(--surface2);}
+  .cal-type-dot{width:9px;height:9px;border-radius:50%;background:var(--border2);transition:background 0.15s;flex-shrink:0;}
+  .cal-type-label{font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);text-align:center;line-height:1.2;transition:color 0.15s;pointer-events:none;}
+  .cal-cell.type-rest{background:transparent;border-color:var(--border);}
+  .cal-cell.type-solo{background:var(--accent-dim);border-color:rgba(0,229,160,0.25);}
+  .cal-cell.type-solo .cal-type-dot{background:var(--accent);}
+  .cal-cell.type-solo .cal-type-label{color:var(--accent);}
+  .cal-cell.type-gym{background:var(--blue-dim);border-color:var(--blue2);}
+  .cal-cell.type-gym .cal-type-dot{background:var(--blue);}
+  .cal-cell.type-gym .cal-type-label{color:var(--blue);}
+  .cal-cell.type-practice{background:var(--amber-dim);border-color:var(--amber2);}
+  .cal-cell.type-practice .cal-type-dot{background:var(--amber);}
+  .cal-cell.type-practice .cal-type-label{color:var(--amber);}
+  .cal-cell.type-match{background:var(--red-dim);border-color:var(--red2);}
+  .cal-cell.type-match .cal-type-dot{background:var(--red);}
+  .cal-cell.type-match .cal-type-label{color:var(--red);}
+  .cal-cell select{width:100%;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;margin-top:4px;padding:0;display:block;}
+  .cal-cell select option{background:#1a1e28;font-size:12px;}
+  .cal-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .cal-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);}
+  .cal-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .fitness-slider-wrap{display:flex;flex-direction:column;gap:10px;}
+  .fitness-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;}
+  input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--border2);border-radius:2px;outline:none;cursor:pointer;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--accent);border-radius:50%;cursor:pointer;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent2);transition:transform 0.1s;}
+  input[type="range"]:hover::-webkit-slider-thumb{transform:scale(1.15);}
+  .fitness-value{font-family:var(--display);font-size:20px;font-weight:700;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase;}
+  .goals-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  @media(max-width:600px){.goals-grid{grid-template-columns:1fr;}}
+  .goal-option input[type="checkbox"]{display:none;}
+  .goal-option label{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;color:var(--text2);background:var(--surface);transition:all 0.15s;user-select:none;}
+  .goal-option label .check-box{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+  .goal-option input:checked+label{border-color:var(--accent2);background:var(--accent-dim);color:var(--text);}
+  .goal-option input:checked+label .check-box{background:var(--accent);border-color:var(--accent);}
+  .goal-option input:checked+label .check-box::after{content:'';width:6px;height:3px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translateY(-1px);}
+  .tech-goal-option input[type="checkbox"]{display:none;}
+  .tech-goal-option label{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;color:var(--text2);background:var(--surface);transition:all 0.15s;user-select:none;}
+  .tech-goal-option label .check-box{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+  .tech-goal-option input:checked+label{border-color:var(--purple2);background:var(--purple-dim);color:var(--text);}
+  .tech-goal-option input:checked+label .check-box{background:var(--purple);border-color:var(--purple);}
+  .tech-goal-option input:checked+label .check-box::after{content:'';width:6px;height:3px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translateY(-1px);}
+  .space-option input[type="radio"]{display:none;}
+  .space-option label{display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px;color:var(--text2);background:var(--surface);transition:all 0.15s;user-select:none;}
+  .space-option label .radio-dot{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+  .space-option input:checked+label{border-color:var(--accent2);background:var(--accent-dim);color:var(--text);}
+  .space-option input:checked+label .radio-dot{border-color:var(--accent);}
+  .space-option input:checked+label .radio-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .tech-goals-note{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;padding:12px 14px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--border2);}
+  .submit-wrap{margin-top:32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .btn-generate{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:16px 40px;border-radius:4px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;}
+  .btn-generate:hover{background:#00ffb3;transform:translateY(-1px);}
+  .btn-generate:active{transform:translateY(0);}
+  .btn-generate:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+  .btn-generate.loading .spinner{display:block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* ── SESSION LOADER ── */
+  #session-loader{display:none;min-height:70vh;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+  #session-loader.active{display:flex;}
+  .session-spin{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+  .session-spin-label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;color:var(--text3);text-transform:uppercase;}
+  .error-msg{font-family:var(--mono);font-size:11px;color:var(--red);display:none;}
+  .program-header{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border);}
+  .athlete-profile{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:28px;}
+  .profile-stat{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+  .profile-stat .label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
+  .profile-stat .value{font-family:var(--display);font-size:15px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.04em;line-height:1.2;}
+  .week-schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0 0;}
+  @media(max-width:600px){.week-schedule-grid{grid-template-columns:repeat(4,1fr);}}
+  .sched-day{border-radius:4px;padding:10px 6px;text-align:center;border:1px solid var(--border);}
+  .sched-day .sd-label{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+  .sched-day .sd-type{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;line-height:1.2;}
+  .sched-day.day-match{background:var(--red-dim);border-color:var(--red2);}.sched-day.day-match .sd-type{color:var(--red);}
+  .sched-day.day-practice{background:var(--amber-dim);border-color:var(--amber2);}.sched-day.day-practice .sd-type{color:var(--amber);}
+  .sched-day.day-solo{background:var(--accent-dim);border-color:rgba(0,229,160,0.2);}.sched-day.day-solo .sd-type{color:var(--accent);}
+  .sched-day.day-gym{background:var(--blue-dim);border-color:var(--blue2);}.sched-day.day-gym .sd-type{color:var(--blue);}
+  .sched-day.day-rest .sd-type{color:var(--text3);}
+  .day-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .section-nav{margin:32px 0 0;}
+  .section-nav-label{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .section-nav-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
+  .section-buttons{display:flex;flex-wrap:wrap;gap:10px;}
+  .sec-btn{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:1px solid var(--border2);background:var(--surface);color:var(--text2);padding:10px 18px;border-radius:4px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:8px;}
+  .sec-btn:hover{border-color:var(--accent2);color:var(--accent);background:var(--accent-dim);}
+  .sec-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+  .sec-btn.done{border-color:var(--accent2);color:var(--accent2);}
+  .sec-btn.done::after{content:'✓';font-size:11px;}
+  .sec-btn.loading-btn{opacity:0.6;cursor:not-allowed;}
+  .sec-btn.match-btn{border-left:3px solid var(--red);}
+  .sec-btn.practice-btn{border-left:3px solid var(--amber);}
+  .sec-btn.solo-btn{border-left:3px solid var(--accent);}
+  .sec-btn.gym-btn{border-left:3px solid var(--blue);}
+  .sec-btn.position-btn{border-left:3px solid var(--purple);}
+  .sec-btn.logic-btn{border-left:3px solid var(--text2);}
+  .sec-btn.period-btn{border-left:3px solid var(--amber);}
+  .sec-btn.bench-btn{border-left:3px solid var(--blue);}
+  .sec-btn.nutrition-btn{border-left:3px solid var(--orange);}
+  .content-area{margin-top:32px;}
+  .content-block{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px 32px;margin-bottom:20px;}
+  .content-block-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .content-block-title-wrap{display:flex;align-items:center;gap:12px;}
+  .content-block-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .content-block-title{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;}
+  .btn-copy-section{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:var(--accent);border:1px solid var(--accent2);padding:6px 14px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;}
+  .btn-copy-section:hover{background:var(--accent);color:#000;}
+  .btn-copy-section.copied{background:var(--accent);color:#000;border-color:var(--accent);}
+  .stream-status{font-family:var(--mono);font-size:12px;color:var(--text3);display:flex;align-items:center;gap:10px;padding:16px 0;}
+  .stream-pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+  .section-content{line-height:1.7;}
+  .section-content h2{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .section-content h3{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--amber);margin:22px 0 8px;}
+  .section-content h4{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;color:var(--accent);text-transform:uppercase;margin:16px 0 6px;}
+  .section-content p{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:10px;}
+  .section-content ul,.section-content ol{padding-left:0;list-style:none;margin-bottom:14px;}
+  .section-content li{font-size:14px;color:var(--text2);padding:6px 0 6px 22px;position:relative;border-bottom:1px solid var(--border);line-height:1.6;}
+  .section-content li::before{content:'—';position:absolute;left:0;color:var(--accent);font-family:var(--mono);font-size:12px;}
+  .section-content ol{counter-reset:item;}
+  .section-content ol li{counter-increment:item;padding-left:30px;}
+  .section-content ol li::before{content:counter(item,decimal-leading-zero);font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:500;}
+  .section-content strong{color:var(--text);font-weight:600;}
+  .section-content em{color:var(--amber);font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:0.04em;}
+  .section-content hr{border:none;border-top:1px solid var(--border);margin:24px 0;}
+  .section-content code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:2px;color:var(--accent);}
+  .streaming-cursor{display:inline-block;width:8px;height:14px;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;border-radius:1px;margin-left:2px;}
+  @keyframes blink{50%{opacity:0;}}
+  .action-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:32px;padding-top:24px;border-top:1px solid var(--border);}
+  .btn-new{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:transparent;color:var(--red);border:1.5px solid var(--red);padding:13px 32px;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+  .btn-new:hover{background:var(--red);color:#fff;}
+  .action-bar-note{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;}
+  .saved-badge{font-family:var(--mono);font-size:10px;color:var(--accent2);letter-spacing:0.08em;display:none;align-items:center;gap:6px;}
+  .saved-badge.visible{display:flex;}
+  .saved-badge::before{content:'●';font-size:8px;}
+  #admin-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2000;display:none;align-items:center;justify-content:center;padding:24px;}
+  #admin-modal.visible{display:flex;}
+  #admin-modal .inner{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:32px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:16px;}
+  #admin-modal .title{font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;}
+  #admin-password{background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:14px;padding:12px 16px;border-radius:4px;outline:none;width:100%;}
+  #admin-password:focus{border-color:var(--accent2);}
+  #admin-submit{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:13px;border-radius:4px;cursor:pointer;width:100%;}
+  #admin-submit:hover{background:#00ffb3;}
+  #admin-error{font-family:var(--mono);font-size:11px;color:var(--red);display:none;text-align:center;}
+  #admin-cancel{background:transparent;border:none;color:var(--text3);font-family:var(--mono);font-size:11px;cursor:pointer;text-align:center;letter-spacing:0.06em;}
+  /* ── PLAYER CARD ── */
+  .player-card-wrap{margin:6px 0 30px;display:flex;flex-direction:column;align-items:center;gap:18px;}
+  .player-card-controls{width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;}
+  .player-card-controls .pc-label{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;color:var(--text2);text-transform:uppercase;}
+  .player-card-controls input{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--body);font-size:14px;padding:12px 16px;border-radius:4px;outline:none;transition:border-color .2s,background .2s;}
+  .player-card-controls input:focus{border-color:var(--accent2);background:var(--surface2);}
+  .btn-download-card{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:14px 28px;border-radius:4px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-download-card:hover{background:#00ffb3;transform:translateY(-1px);}
+  .btn-download-card:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+  .fut-card{position:relative;width:min(300px,86vw);aspect-ratio:300/440;border-radius:14px;overflow:hidden;font-size:15px;background:linear-gradient(160deg,#0e3325 0%,#0a1a13 45%,#070b09 100%);border:1px solid rgba(0,229,160,0.45);box-shadow:0 18px 50px rgba(0,0,0,0.55);}
+  @media(max-width:360px){.fut-card{font-size:13px;}}
+  .fut-sheen{position:absolute;inset:0;background:radial-gradient(circle at 28% 6%,rgba(0,229,160,0.20),rgba(0,229,160,0) 58%);pointer-events:none;}
+  .fut-frame{position:absolute;top:0.5em;left:0.5em;right:0.5em;bottom:0.5em;border:1px solid rgba(0,229,160,0.18);border-radius:10px;pointer-events:none;}
+  .fut-inner{position:absolute;inset:0;display:flex;flex-direction:column;padding:1.4em 1.3em 1.9em;}
+  .fut-top{position:relative;height:46%;}
+  .fut-rating{position:absolute;top:0;left:0;display:flex;flex-direction:column;align-items:center;width:3.4em;}
+  .fut-ovr{font-family:var(--display);font-size:2.9em;font-weight:900;line-height:0.9;color:#eafff6;letter-spacing:0.01em;}
+  .fut-pos{font-family:var(--display);font-size:0.95em;font-weight:800;letter-spacing:0.08em;color:var(--accent);margin-top:0.1em;}
+  .fut-rule{width:1.7em;height:1px;background:rgba(0,229,160,0.5);margin:0.45em 0;}
+  .fut-mark{width:1.25em;height:1.25em;border:1.5px solid var(--accent);border-radius:3px;position:relative;}
+  .fut-mark::before{content:'';position:absolute;top:50%;left:50%;width:0.7em;height:0.7em;border:1.5px solid var(--accent);border-radius:50%;transform:translate(-50%,-50%);}
+  .fut-mark::after{content:'';position:absolute;top:50%;left:50%;width:0.7em;height:1.5px;background:var(--accent);transform:translate(-50%,-50%);}
+  .fut-emblem{position:absolute;top:0.2em;right:0;width:7.2em;height:7.2em;border-radius:50%;background:linear-gradient(160deg,#10402f,#081511);border:1.5px solid rgba(0,229,160,0.55);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .fut-emblem-sheen{position:absolute;inset:0;background:radial-gradient(circle at 38% 28%,rgba(0,229,160,0.28),rgba(0,229,160,0) 62%);}
+  .fut-emblem span{position:relative;font-family:var(--display);font-size:3em;font-weight:900;color:#eafff6;letter-spacing:0.02em;}
+  .fut-name{font-family:var(--display);font-size:1.5em;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#eafff6;text-align:center;padding:0.35em 0;border-top:1px solid rgba(0,229,160,0.35);border-bottom:1px solid rgba(0,229,160,0.35);margin-bottom:0.7em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fut-stats{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0.5em 1.3em;align-content:center;}
+  .fut-stat{display:flex;flex-direction:column;gap:0.3em;}
+  .fut-stat-row{display:flex;align-items:baseline;gap:0.45em;}
+  .fut-stat-val{font-family:var(--display);font-size:1.35em;font-weight:800;color:#eafff6;line-height:1;min-width:1.5em;}
+  .fut-stat-lbl{font-family:var(--mono);font-size:0.72em;letter-spacing:0.12em;color:var(--accent);text-transform:uppercase;}
+  .fut-bar{height:0.32em;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;}
+  .fut-bar-fill{height:100%;background:linear-gradient(90deg,#00b87a,#00e5a0);border-radius:2px;}
+  .fut-brand{position:absolute;bottom:0.7em;left:0;right:0;text-align:center;font-family:var(--mono);font-size:0.6em;letter-spacing:0.2em;color:rgba(0,229,160,0.55);text-transform:uppercase;}
+  footer{padding:32px 0;margin-top:64px;border-top:1px solid var(--border);text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;}
+  .fade-in{animation:fadeUp 0.4s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  /* ── HEADER AUTH STATUS ── */
+  .header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .auth-status{display:none;align-items:center;gap:12px;}
+  .auth-email{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:0.04em;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .auth-logout-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:var(--text2);border:1px solid var(--border2);padding:6px 14px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+  .auth-logout-btn:hover{border-color:var(--red);color:var(--red);}
+  .auth-login-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent2);padding:6px 14px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+  .auth-login-btn:hover{background:var(--accent);color:#000;}
+
+  /* ── AUTH MODAL (overlays the app, shown on generate attempt) ── */
+  #auth-screen{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1500;display:none;align-items:center;justify-content:center;padding:24px;}
+  #auth-screen.visible{display:flex;}
+  .auth-wrap{width:100%;display:flex;align-items:center;justify-content:center;}
+  .auth-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;transition:color 0.15s;}
+  .auth-close:hover{color:var(--text);}
+  .auth-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:40px 36px;width:100%;max-width:420px;position:relative;overflow:hidden;}
+  .auth-card::before{content:'';position:absolute;top:-80px;right:-80px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,229,160,0.07) 0%,transparent 70%);pointer-events:none;}
+  .auth-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
+  .auth-title{font-family:var(--display);font-size:34px;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;color:var(--text);line-height:1;margin-bottom:8px;}
+  .auth-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:28px;font-weight:300;}
+  .auth-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+  .auth-tab{flex:1;font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:var(--text2);border:none;padding:12px;cursor:pointer;transition:all 0.15s;}
+  .auth-tab.active{background:var(--accent-dim);color:var(--accent);}
+  .auth-form{display:flex;flex-direction:column;gap:18px;}
+  .auth-form .field input[type="email"],.auth-form .field input[type="password"]{background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--body);font-size:14px;padding:13px 16px;border-radius:4px;outline:none;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none;width:100%;}
+  .auth-form .field input:focus{border-color:var(--accent2);background:var(--surface);}
+  .auth-submit{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:15px;border-radius:4px;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+  .auth-submit:hover{background:#00ffb3;transform:translateY(-1px);}
+  .auth-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .auth-error{font-family:var(--mono);font-size:11px;color:var(--red);line-height:1.5;display:none;}
+  .auth-error.visible{display:block;}
+  .auth-message{font-family:var(--mono);font-size:11px;color:var(--accent);line-height:1.5;display:none;}
+  .auth-message.visible{display:block;}
+
+  /* ── MY PROFILE MODAL ── */
+  #profile-modal{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1400;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
+  #profile-modal.visible{display:flex;}
+  .profile-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:100%;max-width:520px;margin:auto;padding:32px;position:relative;}
+  .profile-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .profile-panel-title{font-family:var(--display);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);}
+  .profile-panel-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.15s;}
+  .profile-panel-close:hover{color:var(--text);}
+  .profile-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .profile-stat-item{background:var(--surface2);border-radius:6px;padding:10px 12px;}
+  .pstat-label{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:4px;}
+  .pstat-value{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;line-height:1.2;}
+  .profile-cal{display:flex;gap:4px;}
+  .pcal-day{flex:1;border-radius:4px;padding:7px 4px;text-align:center;background:var(--surface2);}
+  .pcal-name{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.08em;margin-bottom:3px;}
+  .pcal-type{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.04em;}
+  .pcal-solo .pcal-type{color:var(--accent);}
+  .pcal-gym .pcal-type{color:var(--blue);}
+  .pcal-practice .pcal-type{color:var(--amber);}
+  .pcal-match .pcal-type{color:var(--red);}
+  .pcal-rest .pcal-type{color:var(--text3);}
+  .profile-goals-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .profile-goal-tag{font-family:var(--mono);font-size:10px;letter-spacing:0.04em;background:var(--accent-dim);color:var(--accent);border-radius:4px;padding:4px 10px;}
+  .profile-goal-tech{background:var(--purple-dim);color:var(--purple);}
+  .profile-quick-edit{border-top:1px solid var(--border);margin-top:24px;padding-top:20px;}
+  .profile-section-label{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;}
+  .profile-save-btn{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:var(--accent);color:#000;border:none;padding:12px 24px;border-radius:4px;cursor:pointer;margin-top:16px;transition:all 0.15s;width:100%;}
+  .profile-save-btn:hover{background:#00ffb3;}
+  .profile-save-msg{font-family:var(--mono);font-size:11px;text-align:center;margin-top:8px;min-height:16px;}
+  .profile-regen-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;background:transparent;color:var(--text2);border:1px solid var(--border2);padding:10px 20px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+  .profile-regen-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .profile-link-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:var(--text2);border:1px solid var(--border2);padding:6px 14px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+  .profile-link-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .btn-progression{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple2);padding:10px 18px;border-radius:4px;cursor:pointer;transition:all 0.15s;}
+  .btn-progression:hover{background:var(--purple2);}
+  @media(max-width:600px){.profile-stats-grid{grid-template-columns:repeat(2,1fr);}.profile-panel{padding:24px 20px;}.profile-cal{flex-wrap:wrap;}.pcal-day{min-width:36px;}}
+
+  @media(max-width:600px){.section-title{font-size:30px;}.header-inner{flex-direction:column;align-items:flex-start;}.pricing-banner{flex-direction:column;text-align:left;}.pricing-banner-right{text-align:left;}.auth-card{padding:32px 24px;}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark" id="logo-mark">
+      <div class="logo-icon"></div>
+      <div>
+        <div class="logo-text">Pitch <span>Condition</span></div>
+        <div class="tagline">AI Soccer Performance Coach</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="version-badge">v7.0 · AI POWERED</div>
+      <button id="login-btn" class="auth-login-btn" onclick="openLoginModal()">Log In</button>
+      <div id="auth-status" class="auth-status">
+        <span id="auth-email" class="auth-email"></span>
+        <button class="profile-link-btn" onclick="showProfileModal()">My Profile</button>
+        <button id="logout-btn" class="auth-logout-btn" onclick="handleLogout()">Log Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="admin-modal">
+  <div class="inner">
+    <div class="title">Admin Access</div>
+    <input type="password" id="admin-password" placeholder="Enter password" autocomplete="off">
+    <button id="admin-submit" onclick="submitAdminPassword()">Unlock</button>
+    <div id="admin-error">Incorrect password</div>
+    <button id="admin-cancel" onclick="closeAdminModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- ── AUTH SCREEN (shown when logged out) ──                           -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<section id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <button class="auth-close" onclick="closeAuthModal()" aria-label="Close">✕</button>
+      <div class="auth-eyebrow">Pitch Condition</div>
+      <h1 class="auth-title" id="auth-title">Sign Up</h1>
+      <p class="auth-sub" id="auth-sub">Create a free account to generate and save your program.</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+        <button class="auth-tab active" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <div class="auth-form">
+        <div class="field">
+          <label for="auth-email-input">Email</label>
+          <input type="email" id="auth-email-input" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="auth-password-input">Password</label>
+          <input type="password" id="auth-password-input" autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button class="auth-submit" id="auth-submit-btn" onclick="handleAuthSubmit()">Create Account</button>
+        <div class="auth-error" id="auth-error"></div>
+        <div class="auth-message" id="auth-message"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- ── APP ROOT (shown when logged in) — wraps the entire existing app ─ -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div id="app-root">
+
+<!-- Session loader — covers the blank gap while Supabase fetches the program -->
+<div id="session-loader">
+  <div class="session-spin"></div>
+  <div class="session-spin-label">Loading your program…</div>
+</div>
+
+<!-- ── LANDING PAGE ── -->
+<div id="landing-page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">AI Soccer Performance</div>
+    <h1 class="hero-headline">Your coach builds a plan<br>for the team.<br><span>Nobody is building<br>one for you.</span></h1>
+    <p class="hero-sub">Pitch Condition builds a <strong>full training program</strong> around your position, match schedule, and weekly routine. Every section is specific to you — not a generic plan copied from the internet.</p>
+    <div class="hero-cta-row">
+      <button class="btn-hero" onclick="scrollToForm()">Build My Program →</button>
+      <div class="hero-price">One time · <strong>$2.99</strong> · No subscription</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">9</div><div class="lbl">Program Sections</div></div>
+      <div class="hero-stat"><div class="num">8</div><div class="lbl">Positions Supported</div></div>
+      <div class="hero-stat"><div class="num">$2.99</div><div class="lbl">One-Time Price</div></div>
+      <div class="hero-stat"><div class="num">AI</div><div class="lbl">Powered by LLaMA 70B</div></div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="section-block">
+    <div class="section-eyebrow">What You Get</div>
+    <h2 class="section-heading">A complete program.<br>Built for your position.</h2>
+    <p class="section-sub">Every section is generated specifically for your position, schedule, fitness level, and technical goals. Nothing generic.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--red-dim);color:var(--red);">⚽</div>
+        <div class="feature-card-title">Match Day Protocol</div>
+        <div class="feature-card-desc">Pre-match activation timed to kickoff, position-specific priming, post-match recovery, and Day +1 protocol.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--blue-dim);color:var(--blue);">🏋️</div>
+        <div class="feature-card-title">Gym Protocol</div>
+        <div class="feature-card-desc">Strength and power sessions built for your position's physical demands. Recovery-aware — adapts based on what you trained yesterday.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--amber-dim);color:var(--amber);">🧠</div>
+        <div class="feature-card-title">Team Practice Protocol</div>
+        <div class="feature-card-desc">Pre-practice add-ons that fix what team warm-ups miss for your position. Post-practice finishers to stay ahead of the group.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--purple-dim);color:var(--purple);">📍</div>
+        <div class="feature-card-title">Position Demands</div>
+        <div class="feature-card-desc">Real match metrics for your position — distance covered, sprint counts, energy systems, key muscle groups, and what separates elite from average.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--accent-dim);color:var(--accent);">🎯</div>
+        <div class="feature-card-title">Solo Training Protocol</div>
+        <div class="feature-card-desc">Ball drills that replicate real match scenarios. Every drill is explosive, game-specific, and tied to your technical goals. No cone weaves.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--orange-dim);color:var(--orange);">🍽️</div>
+        <div class="feature-card-title">Nutrition Protocol</div>
+        <div class="feature-card-desc">Calorie and macro targets calculated from your height, weight, age, and training volume. Match day fueling timed to kickoff.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--surface2);color:var(--text2);">📅</div>
+        <div class="feature-card-title">Weekly Structure</div>
+        <div class="feature-card-desc">Full 4-week periodization with load logic, muscle group mapping, recovery gaps, and progressive overload built into your exact schedule.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section-block">
+    <div class="section-eyebrow">How It Works</div>
+    <h2 class="section-heading">Three steps.<br>Your program is ready.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-title">Enter Your Profile</div>
+          <div class="step-desc">Position, age, height, weight, fitness level, weekly schedule, physical goals, and the technical skills you want to develop. Takes 2 minutes.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-title">Pay Once — $2.99</div>
+          <div class="step-desc">Secure checkout through Stripe. No account needed, no subscription, no hidden fees. One program, yours forever on this device.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-title">Generate Each Section</div>
+          <div class="step-desc">Tap any section to generate it on demand. Copy it to your Notes app and take it to training. The full program auto-saves to your device.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section-block">
+    <div class="section-eyebrow">Reviews</div>
+    <h2 class="section-heading">What players are saying.</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"I've been playing semi-pro for 3 years and never had a training plan that actually matched my position and schedule. The solo drills are different — they actually feel like match prep, not just cone work."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <div>
+            <div class="testimonial-name">Marcus R.</div>
+            <div class="testimonial-role">Central Midfielder · Semi-Pro</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"The match day protocol alone is worth it. I used to just jog and stretch before games. Having a real activation routine timed to kickoff made an actual difference in how sharp I felt in the first 20 minutes."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JT</div>
+          <div>
+            <div class="testimonial-name">Jordan T.</div>
+            <div class="testimonial-role">Winger · College Level</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING BANNER -->
+  <div class="pricing-banner">
+    <div class="pricing-banner-left">
+      <div class="pricing-banner-label">Simple Pricing</div>
+      <div class="pricing-banner-title">One program.<br>One price.</div>
+      <div class="pricing-banner-desc">No subscription. No account. Pay once, get your full personalized program, save it to your Notes app. Come back and generate a new one any time for $2.99.</div>
+    </div>
+    <div class="pricing-banner-right">
+      <div class="pricing-amount">$2.99<span> / program</span></div>
+      <div class="pricing-note">All 9 sections included</div>
+      <button class="btn-hero" style="margin-top:20px;width:100%;justify-content:center;" onclick="scrollToForm()">Build My Program →</button>
+    </div>
+  </div>
+
+</div>
+<!-- ── END LANDING PAGE ── -->
+
+<!-- ── INTAKE FORM ── -->
+<section id="intake-section">
+  <div class="form-section-header">
+    <div class="section-label">Step 01 — Athlete Profile</div>
+    <h1 class="section-title">Build Your<br>Program</h1>
+    <p class="section-subtitle">Fill in your profile. Your program is built around your position, physical goals, and the technical skills you want to develop.</p>
+  </div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Playing Position</label>
+      <select id="position" onchange="updateTechGoals()">
+        <option value="">Select your position</option>
+        <optgroup label="Goalkeepers"><option value="goalkeeper">Goalkeeper (GK)</option></optgroup>
+        <optgroup label="Defenders">
+          <option value="center_back">Center Back (CB)</option>
+          <option value="fullback">Full Back / Wing Back (FB/WB)</option>
+        </optgroup>
+        <optgroup label="Midfielders">
+          <option value="defensive_mid">Defensive Midfielder (CDM)</option>
+          <option value="central_mid">Central Midfielder (CM)</option>
+          <option value="attacking_mid">Attacking Midfielder (CAM)</option>
+        </optgroup>
+        <optgroup label="Forwards">
+          <option value="winger">Winger (LW/RW)</option>
+          <option value="striker">Striker / Centre Forward (ST/CF)</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="age" min="14" max="55" placeholder="e.g. 24">
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Height</label>
+      <div style="display:flex;gap:8px;">
+        <input type="number" id="height-cm" placeholder="e.g. 178" style="flex:1;min-width:0;">
+        <input type="number" id="height-ft" placeholder="ft" style="flex:1;min-width:0;display:none;">
+        <input type="number" id="height-in" placeholder="in" style="flex:1;min-width:0;display:none;">
+        <select id="height-unit" onchange="toggleHeightUnit()" style="width:92px;flex:none;">
+          <option value="cm">cm</option>
+          <option value="ftin">ft / in</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Weight</label>
+      <div style="display:flex;gap:8px;">
+        <input type="number" id="weight-input" placeholder="e.g. 74" style="flex:1;min-width:0;">
+        <select id="weight-unit" style="width:92px;flex:none;">
+          <option value="kg">kg</option>
+          <option value="lbs">lbs</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Biological Sex — Used for Calorie Calculation</label>
+      <select id="sex">
+        <option value="">Select</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+  </div>
+  <div class="section-label" style="margin-top:12px">Step 02 — Weekly Schedule</div>
+  <p style="font-size:12px;color:var(--text3);margin-bottom:14px;font-family:var(--mono);letter-spacing:0.04em;">Click each day to cycle through types, or use the dropdown.</p>
+  <div class="cal-legend">
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--text3)"></div>Rest</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--accent)"></div>Solo Training</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--blue)"></div>Gym / Workout</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber)"></div>Team Practice</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--red)"></div>Match Day</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="form-grid" style="margin-top:20px">
+    <div class="field">
+      <label>Avg Session Duration</label>
+      <select id="duration">
+        <option value="">Select duration</option>
+        <option value="45">45 minutes</option>
+        <option value="60">60 minutes</option>
+        <option value="75">75 minutes</option>
+        <option value="90">90 minutes</option>
+        <option value="120">120+ minutes</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Current Fitness Level</label>
+      <div class="fitness-slider-wrap">
+        <input type="range" id="fitness" min="1" max="5" value="3" step="1">
+        <div class="fitness-labels"><span>Beginner</span><span>Developing</span><span>Solid</span><span>Strong</span><span>Elite</span></div>
+        <div class="fitness-value" id="fitness-display">Solid</div>
+      </div>
+    </div>
+  </div>
+  <div class="form-grid full">
+    <div class="field">
+      <label>What Space Are You Limited To?</label>
+      <div class="goals-grid">
+        <div class="space-option"><input type="radio" name="space" id="sp1" value="Backyard / Small Space"><label for="sp1"><span class="radio-dot"></span>Backyard / Small Space</label></div>
+        <div class="space-option"><input type="radio" name="space" id="sp2" value="Indoors / Very Limited"><label for="sp2"><span class="radio-dot"></span>Indoors / Very Limited</label></div>
+        <div class="space-option"><input type="radio" name="space" id="sp3" value="Half Field"><label for="sp3"><span class="radio-dot"></span>Half Field</label></div>
+        <div class="space-option"><input type="radio" name="space" id="sp4" value="Full Field / Pitch"><label for="sp4"><span class="radio-dot"></span>Full Field / Pitch</label></div>
+      </div>
+    </div>
+  </div>
+  <div class="form-grid full">
+    <div class="field">
+      <label>Physical Goals (select all that apply)</label>
+      <div class="goals-grid">
+        <div class="goal-option"><input type="checkbox" id="g1" value="explosive_speed"><label for="g1"><span class="check-box"></span>Explosive Speed &amp; Acceleration</label></div>
+        <div class="goal-option"><input type="checkbox" id="g2" value="endurance"><label for="g2"><span class="check-box"></span>Match Endurance &amp; Aerobic Base</label></div>
+        <div class="goal-option"><input type="checkbox" id="g3" value="strength"><label for="g3"><span class="check-box"></span>Functional Strength &amp; Power</label></div>
+        <div class="goal-option"><input type="checkbox" id="g4" value="agility"><label for="g4"><span class="check-box"></span>Agility, Change of Direction</label></div>
+        <div class="goal-option"><input type="checkbox" id="g5" value="vertical"><label for="g5"><span class="check-box"></span>Vertical Jump &amp; Heading Power</label></div>
+        <div class="goal-option"><input type="checkbox" id="g6" value="injury_prevention"><label for="g6"><span class="check-box"></span>Injury Prevention &amp; Resilience</label></div>
+        <div class="goal-option"><input type="checkbox" id="g7" value="recovery"><label for="g7"><span class="check-box"></span>Faster Recovery Between Games</label></div>
+        <div class="goal-option"><input type="checkbox" id="g8" value="body_composition"><label for="g8"><span class="check-box"></span>Body Composition &amp; Lean Muscle</label></div>
+      </div>
+    </div>
+  </div>
+  <div class="form-grid full" style="margin-top:8px">
+    <div class="field">
+      <label>Technical Goals — Select Your Position First</label>
+      <div id="tech-goals-placeholder" class="tech-goals-note">Select your position above to see your position-specific technical goals.</div>
+      <div id="tech-goals-grid" class="goals-grid" style="display:none;"></div>
+    </div>
+  </div>
+  <div class="form-grid full">
+    <div class="field">
+      <label>Known Injuries or Physical Limitations (optional)</label>
+      <input type="text" id="injuries" placeholder="e.g. right knee history, tight hamstrings, lower back sensitivity">
+    </div>
+  </div>
+  <div class="submit-wrap">
+    <button class="btn-generate" id="generate-btn" onclick="submitProfile()">
+      <div class="spinner"></div>
+      <span class="btn-label">→ Build My Profile</span>
+    </button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</section>
+
+<!-- ── PROGRAM OUTPUT ── -->
+<section id="program-section">
+  <div class="program-header fade-in">
+    <div class="section-label">Athlete Profile</div>
+    <h1 class="section-title" id="program-title">Your Protocol</h1>
+    <div id="player-card-mount" class="player-card-wrap"></div>
+    <div class="athlete-profile" id="athlete-stats"></div>
+    <div class="section-label" style="margin-bottom:10px">Weekly Structure</div>
+    <div class="day-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Match</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Practice</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Solo</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Gym</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--text3)"></div>Rest</div>
+    </div>
+    <div class="week-schedule-grid" id="week-schedule-grid"></div>
+    <div class="section-nav">
+      <div class="section-nav-label">Generate Sections</div>
+      <div class="section-buttons" id="section-buttons"></div>
+    </div>
+  </div>
+  <div class="content-area" id="content-area"></div>
+  <div class="action-bar" id="action-bar" style="display:none;">
+    <button class="btn-new" onclick="confirmNewProgram()">+ New Program</button>
+    <button class="btn-progression" id="btn-progression" onclick="handleProgressionGenerate()" style="display:none;">↑ Get Updated Program</button>
+    <span class="saved-badge" id="saved-badge">AUTO-SAVED</span>
+    <span class="action-bar-note" id="action-bar-note"></span>
+  </div>
+</section>
+
+</div>
+<!-- ── END APP ROOT ── -->
+
+<!-- ── MY PROFILE MODAL ── -->
+<div id="profile-modal">
+  <div class="profile-panel">
+    <div class="profile-panel-header">
+      <div class="profile-panel-title">My Profile</div>
+      <button class="profile-panel-close" onclick="closeProfileModal()" aria-label="Close">✕</button>
+    </div>
+    <div id="profile-view"></div>
+    <div class="profile-quick-edit">
+      <div class="profile-section-label">Quick Edit</div>
+      <div class="field">
+        <label>Fitness Level</label>
+        <div class="fitness-slider-wrap">
+          <input type="range" id="profile-fitness" min="1" max="5" value="3" step="1"
+            oninput="document.getElementById('profile-fitness-display').textContent=fitnessLevels[this.value]">
+          <div class="fitness-labels"><span>Beginner</span><span>Developing</span><span>Solid</span><span>Strong</span><span>Elite</span></div>
+          <div class="fitness-value" id="profile-fitness-display">Solid</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label>Injuries / Limitations</label>
+        <input type="text" id="profile-injuries" placeholder="e.g. tight hamstrings, lower back">
+      </div>
+      <button class="profile-save-btn" onclick="saveProfileChanges()">Save Changes</button>
+      <div class="profile-save-msg" id="profile-save-msg"></div>
+    </div>
+    <div style="margin-top:20px;text-align:center;">
+      <button class="profile-regen-btn" onclick="editAndRegenerate()">Edit Full Profile &amp; Regenerate →</button>
+    </div>
+  </div>
+</div>
+
+<footer>Pitch Condition · AI Soccer Performance · Powered by AI · Deployed on Vercel</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SUPABASE CLIENT — loaded from CDN                                     -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- ▼▼▼  PASTE YOUR SUPABASE CREDENTIALS HERE  ▼▼▼                         -->
+<!-- Both values are already filled in below. If you ever rotate your key  -->
+<!-- or move projects, this is the ONLY place you edit.                    -->
+<!-- The publishable (anon) key is SAFE to expose in client-side code —    -->
+<!-- it is NOT your secret/service_role key. Never put the secret key here.-->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script>
+  var SUPABASE_URL      = 'https://lqyffeqwryalgnizhlfi.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_aQSl1xVI_Dm1x0WkLIoEAA_XQ3_X7ZB';
+
+  // Creates the auth client. Named `supabaseClient` so it does NOT collide
+  // with the `supabase` global the CDN library defines above.
+  var supabaseClient = null;
+  if (!window.supabase || !window.supabase.createClient) {
+    // The CDN library did not load — usually an ad/tracker blocker, an offline
+    // tab, or a Content-Security-Policy blocking cdn.jsdelivr.net.
+    console.error('Supabase library failed to load from the CDN.');
+  } else {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+</script>
+<!-- ▲▲▲  END SUPABASE CREDENTIALS  ▲▲▲ -->
+
+<script>
+var PROXY_URL    = '/api/generate';
+var CHECKOUT_URL = '/api/create-checkout';
+var VERIFY_URL   = '/api/verify-session';
+var STORAGE_KEY  = 'pitchcondition_saved_program';
+var PAY_KEY      = 'pitchcondition_paid';
+var ADMIN_KEY    = 'pitchcondition_admin';
+
+var DAY_NAMES     = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var TYPE_CYCLE    = ['rest','solo','gym','practice','match'];
+var TYPE_LABELS   = {rest:'Rest Day',solo:'Solo Training',gym:'Gym / Workout',practice:'Team Practice',match:'Match Day'};
+var TYPE_SHORT    = {rest:'Rest',solo:'Solo',gym:'Gym',practice:'Practice',match:'Match'};
+var calState      = ['solo','practice','gym','practice','solo','match','rest'];
+var fitnessLevels = ['','Beginner','Developing','Solid','Strong','Elite'];
+var athleteData   = {};
+var generatedSections = {};
+var currentUser   = null;        // set on login, cleared on logout
+var currentProfile = null;       // raw profile row loaded from Supabase
+var pendingGenerate = false;     // true when generate was blocked by auth gate
+var cloudSaveTimer = null;       // debounce handle for cloud writes
+var currentlyStreaming = false;
+var selectedPlan      = null;
+var logoClickCount    = 0;
+var logoClickTimer    = null;
+
+var TECH_GOALS_BY_POSITION = {
+  goalkeeper:    ['Shot Stopping','Distribution & Kicking','Claiming Crosses','Command of Area','1v1 Situations','Sweeper Keeper','Footwork & Positioning','Communication'],
+  center_back:   ['Aerial Duels & Heading','1v1 Defending','Defensive Shape & Positioning','Ball Playing Out of Back','Interceptions & Reading Play','Aggression & Physicality','Covering & Sweeping','Set Piece Defending'],
+  fullback:      ['Overlapping Runs & Timing','Crossing & Delivery','1v1 Defending','Defensive Positioning','Dribbling in Wide Areas','Combination Play','Tracking Runners','Finishing from Wide Areas'],
+  defensive_mid: ['Pressing & Pressing Triggers','Defensive Shape & Positioning','Interceptions & Anticipation','Passing Range & Switching Play','Shielding the Ball','Aerial Duels','Breaking Lines','Composure Under Pressure'],
+  central_mid:   ['Passing Range & Switching Play','Movement & Creating Space','Pressing & Work Rate','Dribbling Through Midfield','Vision & Decision Making','Composure Under Pressure','Box-to-Box Running','First Touch & Control'],
+  attacking_mid: ['Finishing & Shooting','Dribbling Under Pressure','Through Balls & Vision','First Touch in Tight Spaces','Composure in Front of Goal','Creating Chances','Set Piece Delivery','Movement Between Lines'],
+  winger:        ['Finishing & Shooting','Dribbling & Taking On Defenders','Crossing & Delivery','Cutting Inside','Speed & Explosive Running','1v1 in Wide Areas','Composure in Front of Goal','Combination Play'],
+  striker:       ['Finishing & Shooting','Composure in Front of Goal','Movement & Runs in Behind','Aerial Duels & Heading','Hold Up Play & Link Up','First Touch & Control','1v1 vs Goalkeeper','Set Piece Finishing']
+};
+
+function scrollToForm() {
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  var intake = document.getElementById('intake-section');
+  if (intake) intake.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function updateTechGoals() {
+  var pos = document.getElementById('position').value;
+  var placeholder = document.getElementById('tech-goals-placeholder');
+  var grid = document.getElementById('tech-goals-grid');
+  if (!pos || !TECH_GOALS_BY_POSITION[pos]) {
+    placeholder.style.display = 'block';
+    grid.style.display = 'none';
+    return;
+  }
+  placeholder.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = '';
+  TECH_GOALS_BY_POSITION[pos].forEach(function(goal, i) {
+    var id = 'tg' + i;
+    var div = document.createElement('div');
+    div.className = 'tech-goal-option';
+    div.innerHTML = '<input type="checkbox" id="' + id + '" value="' + goal + '"><label for="' + id + '"><span class="check-box"></span>' + goal + '</label>';
+    grid.appendChild(div);
+  });
+}
+
+function getSelectedTechGoals() {
+  var grid = document.getElementById('tech-goals-grid');
+  if (!grid) return [];
+  var checked = grid.querySelectorAll('input[type="checkbox"]:checked');
+  return Array.prototype.slice.call(checked).map(function(cb) { return cb.value; });
+}
+
+function toggleHeightUnit() {
+  var unit = document.getElementById('height-unit').value;
+  document.getElementById('height-cm').style.display = unit === 'cm' ? 'block' : 'none';
+  document.getElementById('height-ft').style.display = unit === 'ftin' ? 'block' : 'none';
+  document.getElementById('height-in').style.display = unit === 'ftin' ? 'block' : 'none';
+}
+
+function getHeightData() {
+  var unit = document.getElementById('height-unit').value;
+  if (unit === 'cm') {
+    var cm = parseFloat(document.getElementById('height-cm').value);
+    if (isNaN(cm) || cm < 120 || cm > 230) return null;
+    return { cm: Math.round(cm), display: Math.round(cm) + ' cm' };
+  }
+  var ft = parseFloat(document.getElementById('height-ft').value);
+  var inch = parseFloat(document.getElementById('height-in').value);
+  if (isNaN(inch)) inch = 0;
+  if (isNaN(ft)) return null;
+  var totalCm = Math.round(ft * 30.48 + inch * 2.54);
+  if (totalCm < 120 || totalCm > 230) return null;
+  return { cm: totalCm, display: Math.round(ft) + "'" + Math.round(inch) + '"' };
+}
+
+function getWeightData() {
+  var unit = document.getElementById('weight-unit').value;
+  var v = parseFloat(document.getElementById('weight-input').value);
+  if (isNaN(v) || v <= 0) return null;
+  var kg = unit === 'kg' ? v : v * 0.45359237;
+  kg = Math.round(kg * 10) / 10;
+  if (kg < 35 || kg > 180) return null;
+  return { kg: kg, display: unit === 'kg' ? kg + ' kg' : Math.round(v) + ' lbs' };
+}
+
+document.getElementById('weight-unit').addEventListener('change', function() {
+  document.getElementById('weight-input').placeholder = this.value === 'kg' ? 'e.g. 74' : 'e.g. 163';
+});
+
+/* ── ADMIN ── */
+document.getElementById('logo-mark').addEventListener('click', function() {
+  logoClickCount++;
+  if (logoClickTimer) clearTimeout(logoClickTimer);
+  logoClickTimer = setTimeout(function() { logoClickCount = 0; }, 2000);
+  if (logoClickCount >= 5) {
+    logoClickCount = 0;
+    clearTimeout(logoClickTimer);
+    openAdminModal();
+  }
+});
+function openAdminModal() {
+  document.getElementById('admin-password').value = '';
+  document.getElementById('admin-error').style.display = 'none';
+  document.getElementById('admin-modal').classList.add('visible');
+  setTimeout(function(){ document.getElementById('admin-password').focus(); }, 100);
+}
+function closeAdminModal() {
+  document.getElementById('admin-modal').classList.remove('visible');
+  document.getElementById('admin-password').value = '';
+  document.getElementById('admin-error').style.display = 'none';
+}
+function submitAdminPassword() {
+  var input = document.getElementById('admin-password');
+  if (input.value === 'Kyle2011@') {
+    try { localStorage.setItem(ADMIN_KEY, 'true'); } catch(e) {}
+    closeAdminModal();
+    var badge = document.createElement('div');
+    badge.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;font-family:var(--mono);font-size:11px;letter-spacing:0.1em;padding:10px 18px;border-radius:4px;z-index:3000;';
+    badge.textContent = 'ADMIN MODE ACTIVE';
+    document.body.appendChild(badge);
+    setTimeout(function(){ badge.remove(); }, 2500);
+  } else {
+    document.getElementById('admin-error').style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+document.getElementById('admin-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitAdminPassword();
+});
+
+function isPaid() {
+  try {
+    if (localStorage.getItem(ADMIN_KEY) === 'true') return true;
+    // Active subscribers never see the paywall
+    if (currentProfile && currentProfile.subscription_status === 'active') return true;
+    return localStorage.getItem(PAY_KEY) === 'true';
+  } catch(e) { return false; }
+}
+function setPaid() { try { localStorage.setItem(PAY_KEY, 'true'); } catch(e) {} }
+function clearPaid() { try { localStorage.removeItem(PAY_KEY); } catch(e) {} }
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      athleteData: athleteData,
+      generatedSections: generatedSections,
+      calState: calState,
+      savedAt: new Date().toISOString()
+    }));
+    showSavedBadge();
+  } catch(e) {}
+  scheduleCloudSave();
+}
+function loadFromStorage() {
+  try { var r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch(e) {} }
+function showSavedBadge() {
+  var b = document.getElementById('saved-badge');
+  if (!b) return;
+  b.classList.add('visible');
+  setTimeout(function(){ b.classList.remove('visible'); }, 2500);
+}
+
+function restoreSavedProgram(saved) {
+  athleteData = saved.athleteData;
+  generatedSections = saved.generatedSections || {};
+  if (saved.calState && saved.calState.length === 7) {
+    for (var i = 0; i < 7; i++) calState[i] = saved.calState[i];
+  }
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  document.getElementById('intake-section').style.display = 'none';
+  document.getElementById('program-section').style.display = 'block';
+  document.getElementById('program-title').textContent = athleteData.position + ' · Weekly Protocol';
+  document.getElementById('athlete-stats').innerHTML = buildStatsHTML(athleteData);
+  buildScheduleGrid();
+  buildSectionButtons(athleteData.counts);
+  renderPlayerCard();
+  var contentArea = document.getElementById('content-area');
+  contentArea.innerHTML = '';
+  getSectionButtons(athleteData.counts).forEach(function(btn) {
+    if (!generatedSections[btn.id]) return;
+    var built = createContentBlock(btn.id, btn.label, btn.color);
+    contentArea.appendChild(built.block);
+    built.contentEl.innerHTML = generatedSections[btn.id];
+    var btnEl = document.getElementById('btn-' + btn.id);
+    if (btnEl) btnEl.classList.add('done');
+  });
+  if (Object.keys(generatedSections).length > 0) {
+    document.getElementById('action-bar').style.display = 'flex';
+    updateProgressionBtn();
+    var note = document.getElementById('action-bar-note');
+    if (note && saved.savedAt) {
+      var d = new Date(saved.savedAt);
+      note.textContent = 'Last saved ' + d.toLocaleDateString() + ' at ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    }
+  }
+  window.scrollTo(0, 0);
+}
+
+function buildCalendar() {
+  var grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  DAY_NAMES.forEach(function(name, i) {
+    var col = document.createElement('div'); col.className = 'cal-day';
+    col.innerHTML = '<div class="cal-day-name">' + name + '</div>';
+    var cell = document.createElement('div');
+    cell.className = 'cal-cell type-' + calState[i];
+    var dot = document.createElement('div'); dot.className = 'cal-type-dot';
+    var lbl = document.createElement('div'); lbl.className = 'cal-type-label'; lbl.textContent = TYPE_SHORT[calState[i]];
+    var sel = document.createElement('select');
+    sel.style.cssText = 'display:block;width:100%;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;margin-top:4px;padding:0;';
+    TYPE_CYCLE.forEach(function(t) {
+      var opt = document.createElement('option'); opt.value = t; opt.textContent = TYPE_LABELS[t];
+      opt.style.background = '#1a1e28'; if (t === calState[i]) opt.selected = true; sel.appendChild(opt);
+    });
+    (function(idx) {
+      sel.addEventListener('change', function(e) { e.stopPropagation(); calState[idx] = this.value; refreshCell(cell, lbl, sel, idx); });
+      cell.addEventListener('click', function(e) {
+        if (e.target === sel) return;
+        calState[idx] = TYPE_CYCLE[(TYPE_CYCLE.indexOf(calState[idx]) + 1) % TYPE_CYCLE.length];
+        sel.value = calState[idx]; refreshCell(cell, lbl, sel, idx);
+      });
+    })(i);
+    cell.appendChild(dot); cell.appendChild(lbl); cell.appendChild(sel);
+    col.appendChild(cell); grid.appendChild(col);
+  });
+}
+function refreshCell(cell, lbl, sel, i) {
+  cell.className = 'cal-cell type-' + calState[i];
+  lbl.textContent = TYPE_SHORT[calState[i]];
+  sel.value = calState[i];
+}
+function getCounts() {
+  var c = {match:0,practice:0,solo:0,gym:0,rest:0};
+  calState.forEach(function(t) { if (c[t] !== undefined) c[t]++; });
+  return c;
+}
+function buildScheduleGrid() {
+  var tc = {match:'day-match',practice:'day-practice',solo:'day-solo',gym:'day-gym',rest:'day-rest'};
+  document.getElementById('week-schedule-grid').innerHTML = calState.map(function(t, i) {
+    return '<div class="sched-day ' + tc[t] + '"><div class="sd-label">' + DAY_NAMES[i] + '</div><div class="sd-type">' + TYPE_SHORT[t] + '</div></div>';
+  }).join('');
+}
+document.getElementById('fitness').addEventListener('input', function() {
+  document.getElementById('fitness-display').textContent = fitnessLevels[this.value];
+});
+buildCalendar();
+
+function getSectionButtons(counts) {
+  var buttons = [];
+  buttons.push({id:'position_demands', label:'Position Demands',       cls:'position-btn', color:'var(--purple)'});
+  buttons.push({id:'weekly_logic',     label:'Weekly Load Logic',      cls:'logic-btn',    color:'var(--text2)'});
+  if (counts.match > 0)    buttons.push({id:'match_day',    label:'Match Day Protocol',    cls:'match-btn',    color:'var(--red)'});
+  if (counts.practice > 0) buttons.push({id:'practice_day', label:'Team Practice Protocol',cls:'practice-btn', color:'var(--amber)'});
+  if (counts.solo > 0)     buttons.push({id:'solo_day',     label:'Solo Training Protocol',cls:'solo-btn',     color:'var(--accent)'});
+  if (counts.gym > 0)      buttons.push({id:'gym_day',      label:'Gym Protocol',          cls:'gym-btn',      color:'var(--blue)'});
+  buttons.push({id:'nutrition',           label:'Nutrition Protocol',    cls:'nutrition-btn',color:'var(--orange)'});
+  buttons.push({id:'periodization',       label:'4-Week Plan',           cls:'period-btn',   color:'var(--amber)'});
+  buttons.push({id:'benchmarks_warnings', label:'Benchmarks & Warnings', cls:'bench-btn',    color:'var(--blue)'});
+  return buttons;
+}
+function buildSectionButtons(counts) {
+  var container = document.getElementById('section-buttons');
+  container.innerHTML = '';
+  getSectionButtons(counts).forEach(function(btn) {
+    var el = document.createElement('button');
+    el.className = 'sec-btn ' + btn.cls;
+    el.id = 'btn-' + btn.id;
+    el.textContent = btn.label;
+    el.addEventListener('click', function() { onSectionClick(btn.id, btn.label, btn.color); });
+    container.appendChild(el);
+  });
+}
+function buildStatsHTML(data) {
+  var html = '<div class="profile-stat"><div class="label">Position</div><div class="value" style="font-size:11px;line-height:1.3">' + data.position + '</div></div>' +
+    '<div class="profile-stat"><div class="label">Age</div><div class="value">' + data.age + ' yrs</div></div>' +
+    '<div class="profile-stat"><div class="label">Height</div><div class="value">' + (data.heightDisplay || '—') + '</div></div>' +
+    '<div class="profile-stat"><div class="label">Weight</div><div class="value">' + (data.weightDisplay || '—') + '</div></div>' +
+    '<div class="profile-stat"><div class="label">Fitness</div><div class="value">' + data.fitness + '</div></div>' +
+    '<div class="profile-stat"><div class="label">Session</div><div class="value">' + data.duration + 'min</div></div>' +
+    '<div class="profile-stat"><div class="label">Space</div><div class="value" style="font-size:11px;line-height:1.3">' + (data.space || '—') + '</div></div>' +
+    '<div class="profile-stat"><div class="label">Match</div><div class="value" style="color:var(--red)">' + data.counts.match + 'x/wk</div></div>' +
+    '<div class="profile-stat"><div class="label">Practice</div><div class="value" style="color:var(--amber)">' + data.counts.practice + 'x/wk</div></div>' +
+    '<div class="profile-stat"><div class="label">Solo</div><div class="value" style="color:var(--accent)">' + data.counts.solo + 'x/wk</div></div>' +
+    '<div class="profile-stat"><div class="label">Gym</div><div class="value" style="color:var(--blue)">' + data.counts.gym + 'x/wk</div></div>';
+  if (data.techGoals) {
+    html += '<div class="profile-stat" style="grid-column:1/-1"><div class="label">Technical Goals</div><div class="value" style="font-size:11px;color:var(--purple);line-height:1.4">' + data.techGoals + '</div></div>';
+  }
+  return html;
+}
+
+function escapeHTML(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s){ return escapeHTML(s).replace(/"/g,'&quot;'); }
+
+/* ── PLAYER CARD ── */
+/* Position archetypes = each stat's value at Elite fitness (the ceiling). Fitness scales the whole shape down. */
+var FUT_PROFILE = {
+  GK:  {pac:58, sho:42, pas:62, dri:52, def:90, phy:84},
+  CB:  {pac:70, sho:48, pas:68, dri:60, def:92, phy:88},
+  FB:  {pac:90, sho:58, pas:76, dri:74, def:80, phy:74},
+  CDM: {pac:70, sho:64, pas:84, dri:74, def:86, phy:84},
+  CM:  {pac:74, sho:72, pas:90, dri:84, def:70, phy:74},
+  CAM: {pac:80, sho:84, pas:88, dri:90, def:50, phy:66},
+  LW:  {pac:95, sho:80, pas:78, dri:93, def:42, phy:62},
+  ST:  {pac:88, sho:94, pas:66, dri:84, def:38, phy:86}
+};
+var FUT_FITNESS_FACTOR = {1:0.62, 2:0.72, 3:0.82, 4:0.91, 5:1.0};
+var FUT_FITNESS_LEVEL  = {Beginner:1, Developing:2, Solid:3, Strong:4, Elite:5};
+
+function positionCode(label) {
+  if (!label) return 'CM';
+  var m = label.match(/\(([^)]+)\)/);
+  var code = m ? m[1].split('/')[0].trim().toUpperCase() : '';
+  return FUT_PROFILE[code] ? code : 'CM';
+}
+function initialsFromName(name) {
+  var n = (name || '').trim();
+  if (!n) return 'PC';
+  var parts = n.split(/\s+/);
+  var first = parts[0].charAt(0);
+  var last  = parts.length > 1 ? parts[parts.length - 1].charAt(0) : (parts[0].charAt(1) || '');
+  return (first + last).toUpperCase();
+}
+function computeCardStats(data) {
+  var level  = FUT_FITNESS_LEVEL[data.fitness] || 3;
+  var factor = FUT_FITNESS_FACTOR[level] || 0.82;
+  var prof   = FUT_PROFILE[positionCode(data.position)];
+  function scale(v) { return Math.max(35, Math.min(99, Math.round(v * factor))); }
+  return {
+    overall: Math.round(50 + (level - 1) * (49 / 4)),
+    code: positionCode(data.position),
+    stats: {
+      PAC: scale(prof.pac), SHO: scale(prof.sho), PAS: scale(prof.pas),
+      DRI: scale(prof.dri), DEF: scale(prof.def), PHY: scale(prof.phy)
+    }
+  };
+}
+function renderPlayerCard() {
+  var mount = document.getElementById('player-card-mount');
+  if (!mount || !athleteData || !athleteData.position) return;
+  var card    = computeCardStats(athleteData);
+  var rawName = athleteData.playerName || '';
+  var display = rawName || 'YOUR NAME';
+  var s = card.stats;
+  // Interleave so the two columns read PAC/SHO/PAS and DRI/DEF/PHY like a real card.
+  var order = [['PAC',s.PAC],['DRI',s.DRI],['SHO',s.SHO],['DEF',s.DEF],['PAS',s.PAS],['PHY',s.PHY]];
+  var statHTML = order.map(function(p) {
+    return '<div class="fut-stat"><div class="fut-stat-row"><span class="fut-stat-val">' + p[1] +
+           '</span><span class="fut-stat-lbl">' + p[0] + '</span></div>' +
+           '<div class="fut-bar"><div class="fut-bar-fill" style="width:' + p[1] + '%"></div></div></div>';
+  }).join('');
+  mount.innerHTML =
+    '<div id="fut-card" class="fut-card">' +
+      '<div class="fut-sheen"></div>' +
+      '<div class="fut-frame"></div>' +
+      '<div class="fut-inner">' +
+        '<div class="fut-top">' +
+          '<div class="fut-rating">' +
+            '<div class="fut-ovr">' + card.overall + '</div>' +
+            '<div class="fut-pos">' + card.code + '</div>' +
+            '<div class="fut-rule"></div>' +
+            '<div class="fut-mark"></div>' +
+          '</div>' +
+          '<div class="fut-emblem"><div class="fut-emblem-sheen"></div><span id="fut-initials">' + initialsFromName(rawName) + '</span></div>' +
+        '</div>' +
+        '<div class="fut-name" id="fut-name">' + escapeHTML(display) + '</div>' +
+        '<div class="fut-stats">' + statHTML + '</div>' +
+        '<div class="fut-brand">Pitch Condition</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="player-card-controls">' +
+      '<div class="pc-label">Card Name</div>' +
+      '<input type="text" id="card-name-input" maxlength="20" placeholder="Your name or initials" value="' + escapeAttr(rawName) + '">' +
+      '<button class="btn-download-card" id="download-card-btn">\u2B07 Download Card</button>' +
+    '</div>';
+  var input = document.getElementById('card-name-input');
+  input.addEventListener('input', function() {
+    var v = this.value;
+    document.getElementById('fut-name').textContent = v.trim() ? v : 'YOUR NAME';
+    document.getElementById('fut-initials').textContent = initialsFromName(v);
+  });
+  input.addEventListener('change', function() {
+    athleteData.playerName = this.value.trim();
+    if (Object.keys(generatedSections).length > 0) saveToStorage();
+  });
+  document.getElementById('download-card-btn').addEventListener('click', downloadCard);
+}
+function downloadCard() {
+  var card = document.getElementById('fut-card');
+  var btn  = document.getElementById('download-card-btn');
+  if (!card || !btn) return;
+  if (typeof html2canvas !== 'function') { btn.textContent = 'Still loading — tap again'; return; }
+  var orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Rendering\u2026';
+  var run = function() {
+    html2canvas(card, {
+      scale: 2, backgroundColor: null, useCORS: true, logging: false,
+      onclone: function(doc) {
+        var c = doc.getElementById('fut-card');
+        if (c) { c.style.width = '300px'; c.style.height = '440px'; c.style.fontSize = '15px'; c.style.margin = '0'; c.style.boxShadow = 'none'; }
+      }
+    }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = 'pitch-condition-card.png';
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      btn.disabled = false;
+      btn.textContent = orig;
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Try again';
+    });
+  };
+  if (document.fonts && document.fonts.ready && document.fonts.ready.then) { document.fonts.ready.then(run); }
+  else { run(); }
+}
+
+function submitProfile() {
+  var position = document.getElementById('position').value;
+  var age      = document.getElementById('age').value;
+  var duration = document.getElementById('duration').value;
+  var fitness  = parseInt(document.getElementById('fitness').value);
+  var injuries = document.getElementById('injuries').value.trim();
+  var goals    = ['g1','g2','g3','g4','g5','g6','g7','g8']
+                   .filter(function(g){ return document.getElementById(g).checked; })
+                   .map(function(g){ return document.getElementById(g).value; });
+  var techGoals = getSelectedTechGoals();
+  var sex        = document.getElementById('sex').value;
+  var spaceEl    = document.querySelector('input[name="space"]:checked');
+  var space      = spaceEl ? spaceEl.value : '';
+  var heightData = getHeightData();
+  var weightData = getWeightData();
+  var counts = getCounts();
+  var total  = counts.match + counts.practice + counts.solo + counts.gym;
+  var errorEl = document.getElementById('error-msg');
+  if (!position || !age || !duration || !sex || !space || goals.length === 0) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Please complete all required fields (including biological sex and training space) and select at least one physical goal.';
+    return;
+  }
+  if (!heightData || !weightData) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Enter a valid height and weight — they drive your calorie and macro targets.';
+    return;
+  }
+  if (total === 0) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Assign at least one active training day on the calendar.';
+    return;
+  }
+  errorEl.style.display = 'none';
+  // Auth gate — must be logged in to generate
+  if (!currentUser) {
+    pendingGenerate = true;
+    switchAuthTab('signup');
+    showAuthModal();
+    return;
+  }
+  var goalLabels = {
+    explosive_speed:'Explosive Speed', endurance:'Match Endurance', strength:'Functional Strength',
+    agility:'Agility and COD', vertical:'Vertical Power', injury_prevention:'Injury Prevention',
+    recovery:'Faster Recovery', body_composition:'Body Composition'
+  };
+  var posLabels = {
+    goalkeeper:'Goalkeeper (GK)', center_back:'Center Back (CB)', fullback:'Full Back / Wing Back (FB/WB)',
+    defensive_mid:'Defensive Midfielder (CDM)', central_mid:'Central Midfielder (CM)',
+    attacking_mid:'Attacking Midfielder (CAM)', winger:'Winger (LW/RW)', striker:'Striker / Centre Forward (ST/CF)'
+  };
+  athleteData = {
+    position:  posLabels[position],
+    age:       age,
+    sex:       sex,
+    space:     space,
+    heightCm:  heightData.cm,
+    heightDisplay: heightData.display,
+    weightKg:  weightData.kg,
+    weightDisplay: weightData.display,
+    fitness:   fitnessLevels[fitness],
+    duration:  parseInt(duration),
+    goals:     goals.map(function(g){ return goalLabels[g] || g; }).join(', '),
+    techGoals: techGoals.join(', '),
+    injuries:  injuries,
+    schedule:  DAY_NAMES.map(function(d,i){ return d + ': ' + TYPE_LABELS[calState[i]]; }).join('\n'),
+    counts:    counts
+  };
+  generatedSections = {};
+  clearStorage();
+  // Save raw form values to the user's profile (fire-and-forget)
+  var rawProfile = {
+    position: position,
+    age: parseInt(age),
+    sex: sex,
+    height_cm: heightData.cm,
+    weight_kg: weightData.kg,
+    fitness_level: fitness,
+    duration: parseInt(duration),
+    goals: JSON.stringify(
+      ['g1','g2','g3','g4','g5','g6','g7','g8']
+        .filter(function(g){ return document.getElementById(g).checked; })
+        .map(function(g){ return document.getElementById(g).value; })
+    ),
+    tech_goals: JSON.stringify(techGoals),
+    injuries: injuries,
+    space: space,
+    cal_state: JSON.stringify(calState)
+  };
+  currentProfile = rawProfile;
+  saveProfileToCloud(rawProfile);
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  document.getElementById('intake-section').style.display = 'none';
+  document.getElementById('program-section').style.display = 'block';
+  document.getElementById('program-title').textContent = athleteData.position + ' · Weekly Protocol';
+  document.getElementById('content-area').innerHTML = '';
+  document.getElementById('action-bar').style.display = 'none';
+  document.getElementById('athlete-stats').innerHTML = buildStatsHTML(athleteData);
+  buildScheduleGrid();
+  buildSectionButtons(counts);
+  renderPlayerCard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function confirmNewProgram() {
+  if (!confirm('Start a new program? Your current program will be cleared and a new payment will be required.')) return;
+  clearStorage();
+  clearPaid();
+  generatedSections = {};
+  athleteData = {};
+  document.getElementById('content-area').innerHTML = '';
+  document.getElementById('action-bar').style.display = 'none';
+  document.getElementById('program-section').style.display = 'none';
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'block';
+  document.getElementById('intake-section').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function injectPaymentModal() {
+  if (document.getElementById('pay-modal')) return;
+  var overlay = document.createElement('div');
+  overlay.id = 'pay-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;';
+  overlay.innerHTML = [
+    '<div style="background:#111318;border:1px solid #2a3040;border-radius:12px;max-width:460px;width:100%;padding:36px 32px;">',
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.15em;color:#00e5a0;text-transform:uppercase;margin-bottom:8px;">Unlock Your Program</div>',
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;color:#e8eaf0;margin-bottom:6px;">Get Your Program</div>',
+    '<div style="font-size:13px;color:#8a92a6;margin-bottom:24px;">One-time payment. No account needed. Program saved to your device.</div>',
+    '<div id="opt-onetime" onclick="selectPlan(\'payment\')" style="border:1.5px solid #2a3040;border-radius:8px;padding:20px 22px;margin-bottom:12px;cursor:pointer;transition:border-color 0.15s;">',
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">',
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;color:#e8eaf0;">Single Program</div>',
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:24px;font-weight:800;color:#00e5a0;">$2.99</div>',
+    '</div>',
+    '<div style="font-size:13px;color:#8a92a6;">Complete personalized program · Physical + Technical goals · Copy any section to Notes</div>',
+    '</div>',
+    '<div id="opt-sub" onclick="selectPlan(\'subscription\')" style="border:1.5px solid #2a3040;border-radius:8px;padding:20px 22px;margin-bottom:24px;cursor:pointer;transition:border-color 0.15s;position:relative;">',
+    '<div style="position:absolute;top:-10px;right:16px;background:rgba(155,109,255,0.18);color:#9b6dff;font-family:\'JetBrains Mono\',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 10px;border-radius:20px;text-transform:uppercase;">Best Value</div>',
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">',
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;color:#e8eaf0;">Monthly Unlimited</div>',
+    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:24px;font-weight:800;color:#9b6dff;">$6.99<span style="font-size:14px;">/mo</span></div>',
+    '</div>',
+    '<div style="font-size:13px;color:#8a92a6;">New program every month · Auto-progression · Cancel anytime</div>',
+    '</div>',
+    '<button id="pay-btn" onclick="proceedToCheckout()" style="width:100%;font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:#00e5a0;color:#000;border:none;padding:16px;border-radius:6px;cursor:pointer;margin-bottom:12px;opacity:0.4;pointer-events:none;transition:opacity 0.15s;">Select a plan to continue \u2192</button>',
+    '<div style="text-align:center;"><button onclick="closePayModal()" style="background:transparent;border:none;color:#4a5268;font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;letter-spacing:0.06em;">Cancel</button></div>',
+    '<div id="pay-error" style="display:none;color:#ff4f4f;font-family:\'JetBrains Mono\',monospace;font-size:11px;text-align:center;margin-top:12px;"></div>',
+    '</div>'
+  ].join('');
+  document.body.appendChild(overlay);
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  var onetime = document.getElementById('opt-onetime');
+  var sub     = document.getElementById('opt-sub');
+  var btn     = document.getElementById('pay-btn');
+  if (onetime) onetime.style.borderColor = plan === 'payment'      ? '#00e5a0' : '#2a3040';
+  if (sub)     sub.style.borderColor     = plan === 'subscription' ? '#9b6dff' : '#2a3040';
+  if (btn) {
+    btn.style.opacity       = '1';
+    btn.style.pointerEvents = 'auto';
+    btn.textContent = plan === 'subscription'
+      ? 'Subscribe $6.99/mo \u2192'
+      : 'Pay $2.99 and Generate \u2192';
+  }
+}
+
+function closePayModal() {
+  var m = document.getElementById('pay-modal');
+  if (m) m.remove();
+  selectedPlan = null;
+}
+
+async function proceedToCheckout() {
+  if (!selectedPlan) return;
+  var btn   = document.getElementById('pay-btn');
+  var errEl = document.getElementById('pay-error');
+  btn.textContent = 'Redirecting to Stripe...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+  errEl.style.display = 'none';
+  try {
+    try { localStorage.setItem('pc_pending_athlete',  JSON.stringify(athleteData)); } catch(e) {}
+    try { localStorage.setItem('pc_pending_cal',      JSON.stringify(calState));    } catch(e) {}
+    try { localStorage.setItem('pc_checkout_type',    selectedPlan);                } catch(e) {}
+    var resp = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        origin: window.location.origin + window.location.pathname,
+        type:   selectedPlan,
+        userId: currentUser ? currentUser.id : ''
+      })
+    });
+    var data = await resp.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No checkout URL returned');
+    }
+  } catch(err) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Error: ' + err.message;
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    btn.textContent = selectedPlan === 'subscription' ? 'Subscribe $6.99/mo \u2192' : 'Pay $2.99 and Generate \u2192';
+  }
+}
+
+function onSectionClick(sectionId, sectionLabel, accentColor) {
+  if (isPaid()) {
+    generateSection(sectionId, sectionLabel, accentColor);
+  } else {
+    try { localStorage.setItem('pc_pending_section', JSON.stringify({id:sectionId, label:sectionLabel, color:accentColor})); } catch(e) {}
+    injectPaymentModal();
+  }
+}
+
+async function handleReturnFromStripe() {
+  var params    = new URLSearchParams(window.location.search);
+  var sessionId = params.get('session_id');
+  var cancelled = params.get('cancelled');
+  window.history.replaceState({}, '', window.location.pathname);
+  if (cancelled) return;
+  if (!sessionId) return;
+  try {
+    var resp = await fetch(VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId })
+    });
+    var data = await resp.json();
+    if (data.paid) {
+      setPaid();
+      try {
+        var pa = JSON.parse(localStorage.getItem('pc_pending_athlete') || 'null');
+        var pc = JSON.parse(localStorage.getItem('pc_pending_cal') || 'null');
+        if (pa) athleteData = pa;
+        if (pc && pc.length === 7) { for (var i = 0; i < 7; i++) calState[i] = pc[i]; }
+        localStorage.removeItem('pc_pending_athlete');
+        localStorage.removeItem('pc_pending_cal');
+      } catch(e) {}
+      var lp = document.getElementById('landing-page');
+      if (lp) lp.style.display = 'none';
+      document.getElementById('intake-section').style.display = 'none';
+      document.getElementById('program-section').style.display = 'block';
+      document.getElementById('program-title').textContent = athleteData.position + ' · Weekly Protocol';
+      document.getElementById('athlete-stats').innerHTML = buildStatsHTML(athleteData);
+      buildScheduleGrid();
+      buildSectionButtons(athleteData.counts);
+      renderPlayerCard();
+      document.getElementById('content-area').innerHTML = '';
+      document.getElementById('action-bar').style.display = 'none';
+      try {
+        var ps = JSON.parse(localStorage.getItem('pc_pending_section') || 'null');
+        if (ps) {
+          localStorage.removeItem('pc_pending_section');
+          setTimeout(function(){ generateSection(ps.id, ps.label, ps.color); }, 400);
+        }
+      } catch(e) {}
+    } else {
+      alert('Payment could not be verified. Please try again.');
+    }
+  } catch(err) {
+    alert('Could not verify payment: ' + err.message);
+  }
+}
+
+function copySectionText(sectionId, sectionLabel, btn) {
+  var block = document.getElementById('block-' + sectionId);
+  if (!block) return;
+  var contentEl = block.querySelector('.section-content');
+  if (!contentEl) return;
+  var text = '=== ' + sectionLabel.toUpperCase() + ' ===\n\n';
+  var walker = document.createTreeWalker(contentEl, NodeFilter.SHOW_TEXT, null, false);
+  var lines = [];
+  var node;
+  while ((node = walker.nextNode())) {
+    var val = node.nodeValue.trim();
+    if (val) lines.push(val);
+  }
+  text += lines.join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    var original = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    var original = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function createContentBlock(sectionId, sectionLabel, accentColor) {
+  var block = document.createElement('div');
+  block.className = 'content-block fade-in';
+  block.id = 'block-' + sectionId;
+  var header = document.createElement('div');
+  header.className = 'content-block-header';
+  var titleWrap = document.createElement('div');
+  titleWrap.className = 'content-block-title-wrap';
+  titleWrap.innerHTML = '<div class="content-block-dot" style="background:' + accentColor + '"></div><div class="content-block-title" style="color:' + accentColor + '">' + sectionLabel + '</div>';
+  var copyBtn = document.createElement('button');
+  copyBtn.className = 'btn-copy-section';
+  copyBtn.textContent = '⎘ Copy to Notes';
+  (function(id, label, btn) {
+    btn.addEventListener('click', function() { copySectionText(id, label, btn); });
+  })(sectionId, sectionLabel, copyBtn);
+  header.appendChild(titleWrap);
+  header.appendChild(copyBtn);
+  var contentEl = document.createElement('div');
+  contentEl.className = 'section-content';
+  block.appendChild(header);
+  block.appendChild(contentEl);
+  return { block: block, contentEl: contentEl };
+}
+
+async function generateSection(sectionId, sectionLabel, accentColor) {
+  if (currentlyStreaming) return;
+  var btn = document.getElementById('btn-' + sectionId);
+  if (generatedSections[sectionId]) {
+    var existing = document.getElementById('block-' + sectionId);
+    if (existing) existing.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  if (btn) { btn.classList.add('loading-btn'); btn.classList.add('active'); }
+  currentlyStreaming = true;
+  var built = createContentBlock(sectionId, sectionLabel, accentColor);
+  var statusEl = document.createElement('div');
+  statusEl.className = 'stream-status';
+  statusEl.innerHTML = '<div class="stream-pulse"></div>Generating ' + sectionLabel + '...';
+  built.block.insertBefore(statusEl, built.contentEl);
+  document.getElementById('content-area').appendChild(built.block);
+  built.block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try {
+    var response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({
+        section:   sectionId,
+        position:  athleteData.position,
+        age:       athleteData.age,
+        fitness:   athleteData.fitness,
+        duration:  athleteData.duration,
+        sex:       athleteData.sex,
+        heightCm:  athleteData.heightCm,
+        weightKg:  athleteData.weightKg,
+        space:     athleteData.space,
+        goals:     athleteData.goals,
+        techGoals: athleteData.techGoals,
+        injuries:  athleteData.injuries,
+        schedule:  athleteData.schedule,
+        counts:    athleteData.counts
+      }, _progressionData && _progressionData.previousSections ? {
+        // Progression mode: send only this section's previous content + context
+        previousProgram:    extractSectionText(_progressionData.previousSections[sectionId] || ''),
+        progressionContext: _progressionData.progressionContext || ''
+      } : {}))
+    });
+    if (!response.ok) { throw new Error('Error ' + response.status + ': ' + await response.text()); }
+    var reader  = response.body.getReader();
+    var decoder = new TextDecoder('utf-8');
+    var fullText = '', buf = '', firstToken = true, renderPending = false;
+    function scheduleRender() {
+      if (renderPending) return;
+      renderPending = true;
+      requestAnimationFrame(function() {
+        renderPending = false;
+        if (fullText) built.contentEl.innerHTML = renderMarkdown(fullText) + '<span class="streaming-cursor"></span>';
+      });
+    }
+    var reading = true;
+    while (reading) {
+      var result;
+      try { result = await reader.read(); } catch(e) { break; }
+      if (result.done) { reading = false; break; }
+      try { buf += decoder.decode(result.value, { stream: true }); } catch(e) { continue; }
+      var newlineIdx;
+      while ((newlineIdx = buf.indexOf('\n')) !== -1) {
+        var line = buf.slice(0, newlineIdx);
+        buf = buf.slice(newlineIdx + 1);
+        try {
+          if (!line.startsWith('data:')) continue;
+          var jsonStr = line.slice(5).trim();
+          if (!jsonStr || jsonStr === '[DONE]') continue;
+          var parsed = JSON.parse(jsonStr);
+          var choices = parsed.choices;
+          if (!choices || !choices.length) continue;
+          var delta = choices[0].delta;
+          if (!delta) continue;
+          var token = delta.content;
+          if (typeof token !== 'string' || token.length === 0) continue;
+          if (firstToken) { statusEl.style.display = 'none'; firstToken = false; }
+          fullText += token;
+          scheduleRender();
+        } catch(e) { continue; }
+      }
+    }
+    statusEl.style.display = 'none';
+    if (fullText) {
+      built.contentEl.innerHTML = renderMarkdown(fullText);
+      generatedSections[sectionId] = built.contentEl.innerHTML;
+      if (btn) { btn.classList.remove('loading-btn'); btn.classList.remove('active'); btn.classList.add('done'); }
+      document.getElementById('action-bar').style.display = 'flex';
+      updateProgressionBtn();
+      saveToStorage();
+    } else {
+      built.contentEl.innerHTML = '<p style="color:var(--red)">No content received. Check your API key in Vercel.</p>';
+      if (btn) { btn.classList.remove('loading-btn'); btn.classList.remove('active'); }
+    }
+  } catch(err) {
+    statusEl.style.display = 'none';
+    built.contentEl.innerHTML = '<p style="color:var(--red)">' + err.message + '</p>';
+    if (btn) { btn.classList.remove('loading-btn'); btn.classList.remove('active'); }
+  }
+  currentlyStreaming = false;
+}
+
+function renderMarkdown(text) {
+  var html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/^#### (.+)$/gm,'<h4>$1</h4>');
+  html = html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm,'<h2>$1</h2>');
+  html = html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  html = html.replace(/\*([^*\n]+?)\*/g,'<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g,'<code>$1</code>');
+  html = html.replace(/^---+$/gm,'<hr>');
+  html = html.replace(/((?:^[ \t]*- .+$\n?)+)/gm, function(match) {
+    var items = match.trim().split('\n').filter(function(l){ return l.trim(); });
+    return '<ul>' + items.map(function(l){ return '<li>' + l.replace(/^[ \t]*- /,'') + '</li>'; }).join('') + '</ul>';
+  });
+  html = html.replace(/((?:^[ \t]*\d+\. .+$\n?)+)/gm, function(match) {
+    var items = match.trim().split('\n').filter(function(l){ return l.trim(); });
+    return '<ol>' + items.map(function(l){ return '<li>' + l.replace(/^[ \t]*\d+\. /,'') + '</li>'; }).join('') + '</ol>';
+  });
+  var lines = html.split('\n'), out = [];
+  for (var i = 0; i < lines.length; i++) {
+    var t = lines[i].trim();
+    if (!t) { out.push(''); continue; }
+    if (/^<(h[1-6]|ul|ol|li|hr|div|p|code)/i.test(t)) { out.push(t); continue; }
+    out.push('<p>' + t + '</p>');
+  }
+  return out.join('\n');
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* ── SUPABASE CLOUD PROGRAM PERSISTENCE ──                               */
+/* One row per user in the `programs` table. The whole program object     */
+/* (athleteData + generatedSections + calState) is stored in             */
+/* program_content as JSONB, mirroring the localStorage shape exactly so  */
+/* restoreSavedProgram() can rebuild from it unchanged.                   */
+/* ════════════════════════════════════════════════════════════════════ */
+function buildProgramPayload() {
+  return {
+    athleteData: athleteData,
+    generatedSections: generatedSections,
+    calState: calState,
+    savedAt: new Date().toISOString()
+  };
+}
+
+// Debounced — saveToStorage() can fire many times in quick succession
+// (each section generated, each calendar edit). We only push once it settles.
+function scheduleCloudSave() {
+  if (!currentUser || !supabaseClient) return;
+  if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(saveProgramToCloud, 800);
+}
+
+async function saveProgramToCloud() {
+  if (!currentUser || !supabaseClient) return;
+  if (!athleteData || !athleteData.position) return;
+  try {
+    // Pure INSERT — no delete. History accumulates so the AI can use past
+    // programs to build progressions. Load always picks latest by created_at.
+    var ins = await supabaseClient
+      .from('programs')
+      .insert({
+        user_id: currentUser.id,
+        program_content: JSON.stringify(buildProgramPayload())
+      });
+    if (ins.error) { console.error('Cloud save failed:', ins.error.message); }
+  } catch (e) {
+    console.error('Cloud save error:', e);
+  }
+}
+
+async function loadProgramFromCloud() {
+  if (!currentUser || !supabaseClient) return null;
+  try {
+    var res = await supabaseClient
+      .from('programs')
+      .select('program_content, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (res.error) { console.error('Cloud load failed:', res.error.message); return null; }
+    if (!res.data) return null;
+    var content = res.data.program_content;
+    // Handle TEXT column (string) and JSONB column (already an object).
+    if (typeof content === 'string') {
+      try { content = JSON.parse(content); } catch(e) { return null; }
+    }
+    return content;
+  } catch (e) {
+    console.error('Cloud load error:', e);
+    return null;
+  }
+}
+
+// Wipe in-memory + local program state. Called on logout so a different
+// account on the same browser never inherits the previous user's program.
+function resetProgramState() {
+  if (cloudSaveTimer) { clearTimeout(cloudSaveTimer); cloudSaveTimer = null; }
+  athleteData = {};
+  generatedSections = {};
+  clearStorage();
+  clearPaid();
+  try { localStorage.removeItem(ADMIN_KEY); } catch(e) {}
+  var ca = document.getElementById('content-area');
+  if (ca) ca.innerHTML = '';
+  var ab = document.getElementById('action-bar');
+  if (ab) ab.style.display = 'none';
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* ── PHASE 4: PROGRESSION ENGINE ──                                      */
+/* ════════════════════════════════════════════════════════════════════ */
+
+// Global flag — set when user clicks "Get Updated Program". Cleared after use.
+var _progressionData = null;
+
+// Show the progression button only when there's a profile AND a saved program.
+function updateProgressionBtn() {
+  var btn = document.getElementById('btn-progression');
+  if (!btn) return;
+  btn.style.display = (currentUser && currentProfile) ? 'inline-flex' : 'none';
+}
+
+// Convert profile row → full athleteData shape that generateSection() expects.
+function buildAthleteDataFromProfile(profile) {
+  var posLabels = {
+    goalkeeper:'Goalkeeper (GK)', center_back:'Center Back (CB)', fullback:'Full Back / Wing Back (FB/WB)',
+    defensive_mid:'Defensive Midfielder (CDM)', central_mid:'Central Midfielder (CM)',
+    attacking_mid:'Attacking Midfielder (CAM)', winger:'Winger (LW/RW)', striker:'Striker / Centre Forward (ST/CF)'
+  };
+  var goalLabels = {
+    explosive_speed:'Explosive Speed', endurance:'Match Endurance', strength:'Functional Strength',
+    agility:'Agility and COD', vertical:'Vertical Power', injury_prevention:'Injury Prevention',
+    recovery:'Faster Recovery', body_composition:'Body Composition'
+  };
+  var calArr = [];
+  try { calArr = JSON.parse(profile.cal_state || '[]'); } catch(e) {}
+  if (calArr.length === 7) { for (var i = 0; i < 7; i++) calState[i] = calArr[i]; }
+  var counts = { match:0, practice:0, solo:0, gym:0 };
+  calArr.forEach(function(t) { if (counts[t] !== undefined) counts[t]++; });
+  var schedule = DAY_NAMES.map(function(d,i){ return d + ': ' + (TYPE_LABELS[calArr[i]] || 'Rest Day'); }).join('\n');
+  var goalKeys = []; try { goalKeys = JSON.parse(profile.goals || '[]'); } catch(e) {}
+  var techGoals = []; try { techGoals = JSON.parse(profile.tech_goals || '[]'); } catch(e) {}
+  return {
+    position:       posLabels[profile.position] || profile.position || '',
+    age:            profile.age || '',
+    sex:            profile.sex || '',
+    space:          profile.space || '',
+    heightCm:       profile.height_cm || 0,
+    heightDisplay:  profile.height_cm ? profile.height_cm + ' cm' : '',
+    weightKg:       profile.weight_kg || 0,
+    weightDisplay:  profile.weight_kg ? profile.weight_kg + ' kg' : '',
+    fitness:        fitnessLevels[profile.fitness_level] || '',
+    duration:       profile.duration || 60,
+    goals:          goalKeys.map(function(g){ return goalLabels[g] || g; }).join(', '),
+    techGoals:      techGoals.join(', '),
+    injuries:       profile.injuries || '',
+    schedule:       schedule,
+    counts:         counts
+  };
+}
+
+// Summarise what changed between the stored profile and the previous program.
+function buildProgressionContext(profile, prevAthleteData) {
+  var lines = [
+    'Current fitness level: ' + (fitnessLevels[profile.fitness_level] || 'Unknown'),
+    'This is an updated program — build as a clear, harder progression.',
+  ];
+  if (prevAthleteData) {
+    var prevFit = prevAthleteData.fitness || '';
+    var nowFit  = fitnessLevels[profile.fitness_level] || '';
+    if (prevFit && nowFit && prevFit !== nowFit) {
+      lines.push('FITNESS CHANGE: ' + prevFit + ' → ' + nowFit + '. Adjust loads accordingly.');
+    }
+    var prevInj = (prevAthleteData.injuries || '').trim();
+    var nowInj  = (profile.injuries || '').trim();
+    if (nowInj && nowInj !== prevInj) {
+      lines.push('INJURY/LIMITATION UPDATE: ' + nowInj);
+    }
+  }
+  lines.push('Do NOT repeat the same exercises or drills. Increase difficulty explicitly.');
+  return lines.join('\n');
+}
+
+// Strip HTML from a section's stored innerHTML to get plain text for the prompt.
+function extractSectionText(htmlStr) {
+  var tmp = document.createElement('div');
+  tmp.innerHTML = htmlStr || '';
+  return (tmp.textContent || tmp.innerText || '').trim().slice(0, 4000); // cap tokens
+}
+
+// Main handler for the "Get Updated Program" button.
+async function handleProgressionGenerate() {
+  if (!currentUser || !currentProfile) return;
+  var btn = document.getElementById('btn-progression');
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+  var latestProgram = await loadProgramFromCloud();
+  if (!latestProgram || !latestProgram.generatedSections || !Object.keys(latestProgram.generatedSections).length) {
+    alert('No previous program found. Generate at least one section first to enable progression.');
+    if (btn) { btn.disabled = false; btn.textContent = '↑ Get Updated Program'; }
+    return;
+  }
+
+  var prevAthleteData = latestProgram.athleteData || null;
+  _progressionData = {
+    previousSections:   latestProgram.generatedSections,
+    progressionContext: buildProgressionContext(currentProfile, prevAthleteData)
+  };
+
+  athleteData      = buildAthleteDataFromProfile(currentProfile);
+  generatedSections = {};
+  clearStorage();
+
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  document.getElementById('intake-section').style.display   = 'none';
+  document.getElementById('program-section').style.display  = 'block';
+  document.getElementById('program-title').textContent      = athleteData.position + ' · Updated Protocol';
+  document.getElementById('content-area').innerHTML         = '';
+  document.getElementById('action-bar').style.display       = 'none';
+  document.getElementById('athlete-stats').innerHTML        = buildStatsHTML(athleteData);
+  buildScheduleGrid();
+  buildSectionButtons(athleteData.counts);
+  renderPlayerCard();
+
+  if (btn) { btn.disabled = false; btn.textContent = '↑ Get Updated Program'; }
+}
+
+var appInitialized = false;
+function runAppInit() {
+  if (appInitialized) return;
+  appInitialized = true;
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('session_id') || params.get('cancelled')) {
+    handleReturnFromStripe();
+    return;
+  }
+  loadInitialData();
+}
+
+// Load profile + program in parallel. Profile pre-fills the form.
+// Program restores the last generated output. Cloud-first, local fallback.
+async function loadInitialData() {
+  var results = await Promise.all([loadProfileFromCloud(), loadProgramFromCloud()]);
+  var profile = results[0];
+  var cloud   = results[1];
+
+  // Data is in — kill the loading spinner regardless of which path we take.
+  hideSessionLoader();
+
+  if (profile) {
+    currentProfile = profile;
+    prefillFormFromProfile(profile);
+  }
+
+  if (cloud && cloud.athleteData && cloud.athleteData.position) {
+    restoreSavedProgram(cloud);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cloud)); } catch(e) {}
+    // Subscriber renewal: auto-trigger Phase 4 after the program displays.
+    if (profile && profile.renewal_pending && profile.subscription_status === 'active') {
+      clearRenewalPending();
+      setTimeout(handleProgressionGenerate, 900);
+    }
+    return;
+  }
+  var saved = loadFromStorage();
+  if (saved && saved.athleteData && saved.athleteData.position) {
+    restoreSavedProgram(saved);
+    return;
+  }
+  // No program found — show the landing page for everyone (new users see the
+  // product; logged-in users with no program start the first-generation flow).
+  var lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'block';
+  document.getElementById('intake-section').style.display = 'none';
+  document.getElementById('program-section').style.display = 'none';
+}
+
+// Clear the renewal flag after we've acted on it — prevents duplicate triggers.
+async function clearRenewalPending() {
+  if (!currentUser || !supabaseClient) return;
+  if (currentProfile) currentProfile.renewal_pending = false;
+  try {
+    // Use delete+insert (matching our profile save pattern) so RLS passes.
+    if (currentProfile) await saveProfileToCloud(currentProfile);
+  } catch(e) { console.error('clearRenewalPending error:', e); }
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* ── PROFILE CLOUD FUNCTIONS ──                                          */
+/* ════════════════════════════════════════════════════════════════════ */
+async function saveProfileToCloud(rawProfile) {
+  if (!currentUser || !supabaseClient) return;
+  try {
+    var del = await supabaseClient.from('profiles').delete().eq('user_id', currentUser.id);
+    if (del.error) { console.error('Profile save (delete) failed:', del.error.message); return; }
+    // Preserve subscription fields managed by the webhook — never overwrite with nulls.
+    var subFields = currentProfile ? {
+      subscription_status: currentProfile.subscription_status || 'none',
+      stripe_customer_id:  currentProfile.stripe_customer_id  || null,
+      subscription_id:     currentProfile.subscription_id     || null,
+      renewal_pending:     false   // always clear on save; webhook re-sets when needed
+    } : {};
+    var row = Object.assign(
+      { user_id: currentUser.id, updated_at: new Date().toISOString() },
+      rawProfile,
+      subFields
+    );
+    var ins = await supabaseClient.from('profiles').insert(row);
+    if (ins.error) { console.error('Profile save (insert) failed:', ins.error.message); }
+    else { currentProfile = Object.assign({}, rawProfile, subFields); }
+  } catch(e) { console.error('Profile save error:', e); }
+}
+
+async function loadProfileFromCloud() {
+  if (!currentUser || !supabaseClient) return null;
+  try {
+    var res = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+    if (res.error) { console.error('Profile load failed:', res.error.message); return null; }
+    return res.data || null;
+  } catch(e) { console.error('Profile load error:', e); return null; }
+}
+
+// Pre-fill the intake form with saved profile values so returning users
+// don't have to re-enter everything.
+function prefillFormFromProfile(profile) {
+  if (!profile) return;
+  try {
+    var posEl = document.getElementById('position');
+    if (posEl && profile.position) { posEl.value = profile.position; updateTechGoals(); }
+
+    var ageEl = document.getElementById('age');
+    if (ageEl && profile.age) ageEl.value = profile.age;
+
+    var sexEl = document.getElementById('sex');
+    if (sexEl && profile.sex) sexEl.value = profile.sex;
+
+    if (profile.height_cm) {
+      document.getElementById('height-unit').value = 'cm';
+      document.getElementById('height-cm').style.display = 'block';
+      document.getElementById('height-ft').style.display = 'none';
+      document.getElementById('height-in').style.display = 'none';
+      document.getElementById('height-cm').value = profile.height_cm;
+    }
+
+    if (profile.weight_kg) {
+      document.getElementById('weight-unit').value = 'kg';
+      document.getElementById('weight-input').value = profile.weight_kg;
+    }
+
+    if (profile.fitness_level) {
+      var fitEl = document.getElementById('fitness');
+      if (fitEl) {
+        fitEl.value = profile.fitness_level;
+        var dispEl = document.getElementById('fitness-display');
+        if (dispEl) dispEl.textContent = fitnessLevels[profile.fitness_level];
+      }
+    }
+
+    if (profile.duration) {
+      var durEl = document.getElementById('duration');
+      if (durEl) durEl.value = profile.duration;
+    }
+
+    if (profile.goals) {
+      var goalKeys = JSON.parse(profile.goals);
+      ['g1','g2','g3','g4','g5','g6','g7','g8'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.checked = goalKeys.indexOf(el.value) !== -1;
+      });
+    }
+
+    // Tech goals: updateTechGoals() already rendered the checkboxes above
+    if (profile.tech_goals) {
+      var techVals = JSON.parse(profile.tech_goals);
+      var grid = document.getElementById('tech-goals-grid');
+      if (grid) {
+        Array.prototype.slice.call(grid.querySelectorAll('input[type="checkbox"]'))
+          .forEach(function(cb) { cb.checked = techVals.indexOf(cb.value) !== -1; });
+      }
+    }
+
+    var injEl = document.getElementById('injuries');
+    if (injEl) injEl.value = profile.injuries || '';
+
+    if (profile.space) {
+      Array.prototype.slice.call(document.querySelectorAll('input[name="space"]'))
+        .forEach(function(r) { r.checked = r.value === profile.space; });
+    }
+
+    if (profile.cal_state) {
+      var savedCal = JSON.parse(profile.cal_state);
+      if (savedCal.length === 7) {
+        for (var i = 0; i < 7; i++) calState[i] = savedCal[i];
+        buildCalendar();
+      }
+    }
+  } catch(e) { console.error('prefillFormFromProfile error:', e); }
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* ── MY PROFILE MODAL ──                                                 */
+/* ════════════════════════════════════════════════════════════════════ */
+function showProfileModal() {
+  if (!currentProfile) {
+    // No profile yet — send them to the form
+    document.getElementById('landing-page').style.display = 'none';
+    document.getElementById('intake-section').style.display = 'block';
+    window.scrollTo(0, 0);
+    return;
+  }
+  renderProfileView(currentProfile);
+  var fitEl = document.getElementById('profile-fitness');
+  if (fitEl && currentProfile.fitness_level) {
+    fitEl.value = currentProfile.fitness_level;
+    document.getElementById('profile-fitness-display').textContent = fitnessLevels[currentProfile.fitness_level];
+  }
+  var injEl = document.getElementById('profile-injuries');
+  if (injEl) injEl.value = currentProfile.injuries || '';
+  document.getElementById('profile-modal').classList.add('visible');
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal').classList.remove('visible');
+  var msg = document.getElementById('profile-save-msg');
+  if (msg) msg.textContent = '';
+}
+
+function renderProfileView(profile) {
+  var el = document.getElementById('profile-view');
+  if (!el || !profile) return;
+  var posLabels = {
+    goalkeeper:'GK', center_back:'Center Back', fullback:'Full Back',
+    defensive_mid:'CDM', central_mid:'CM', attacking_mid:'CAM',
+    winger:'Winger', striker:'Striker'
+  };
+  var typeShort = {rest:'Rest',solo:'Solo',gym:'Gym',practice:'Prac',match:'Match'};
+  var goalLabels = {
+    explosive_speed:'Speed', endurance:'Endurance', strength:'Strength',
+    agility:'Agility', vertical:'Vertical', injury_prevention:'Injury Prev',
+    recovery:'Recovery', body_composition:'Body Comp'
+  };
+  var calDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var cal = []; try { cal = JSON.parse(profile.cal_state || '[]'); } catch(e) {}
+  var goals = []; try { goals = JSON.parse(profile.goals || '[]'); } catch(e) {}
+  var techGoals = []; try { techGoals = JSON.parse(profile.tech_goals || '[]'); } catch(e) {}
+
+  var html = [
+    '<div class="profile-stats-grid">',
+    '<div class="profile-stat-item"><div class="pstat-label">Position</div><div class="pstat-value">' + (posLabels[profile.position] || profile.position || '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Age</div><div class="pstat-value">' + (profile.age || '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Height</div><div class="pstat-value">' + (profile.height_cm ? profile.height_cm + ' cm' : '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Weight</div><div class="pstat-value">' + (profile.weight_kg ? profile.weight_kg + ' kg' : '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Fitness</div><div class="pstat-value">' + (fitnessLevels[profile.fitness_level] || '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Sex</div><div class="pstat-value">' + (profile.sex || '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Duration</div><div class="pstat-value">' + (profile.duration ? profile.duration + ' min' : '—') + '</div></div>',
+    '<div class="profile-stat-item"><div class="pstat-label">Space</div><div class="pstat-value" style="font-size:11px;">' + (profile.space || '—') + '</div></div>',
+    '</div>'
+  ].join('');
+
+  if (cal.length) {
+    html += '<div class="pstat-label" style="margin-top:16px;margin-bottom:8px;">Weekly Schedule</div>';
+    html += '<div class="profile-cal">';
+    calDays.forEach(function(d, i) {
+      var t = cal[i] || 'rest';
+      html += '<div class="pcal-day pcal-' + t + '"><div class="pcal-name">' + d + '</div><div class="pcal-type">' + (typeShort[t] || t) + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  if (goals.length) {
+    html += '<div class="pstat-label" style="margin-top:16px;margin-bottom:6px;">Physical Goals</div><div class="profile-goals-list">';
+    goals.forEach(function(g) { html += '<span class="profile-goal-tag">' + (goalLabels[g] || g) + '</span>'; });
+    html += '</div>';
+  }
+
+  if (techGoals.length) {
+    html += '<div class="pstat-label" style="margin-top:12px;margin-bottom:6px;">Technical Goals</div><div class="profile-goals-list">';
+    techGoals.forEach(function(g) { html += '<span class="profile-goal-tag profile-goal-tech">' + g + '</span>'; });
+    html += '</div>';
+  }
+
+  if (profile.injuries) {
+    html += '<div class="pstat-label" style="margin-top:12px;margin-bottom:4px;">Injuries / Limitations</div>';
+    html += '<div class="pstat-value" style="font-size:12px;color:var(--text2);text-transform:none;font-family:var(--body);">' + profile.injuries + '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+async function saveProfileChanges() {
+  if (!currentProfile || !currentUser) return;
+  var fitness = parseInt(document.getElementById('profile-fitness').value);
+  var injuries = document.getElementById('profile-injuries').value.trim();
+  var msgEl = document.getElementById('profile-save-msg');
+  msgEl.textContent = 'Saving…';
+  msgEl.style.color = 'var(--text2)';
+  currentProfile.fitness_level = fitness;
+  currentProfile.injuries = injuries;
+  await saveProfileToCloud(currentProfile);
+  // Keep intake form in sync
+  var fitEl = document.getElementById('fitness');
+  if (fitEl) { fitEl.value = fitness; document.getElementById('fitness-display').textContent = fitnessLevels[fitness]; }
+  var injEl = document.getElementById('injuries');
+  if (injEl) injEl.value = injuries;
+  // Re-render profile view with updated data
+  renderProfileView(currentProfile);
+  msgEl.textContent = 'Saved!';
+  msgEl.style.color = 'var(--accent)';
+  setTimeout(function() { msgEl.textContent = ''; }, 2500);
+}
+
+function editAndRegenerate() {
+  closeProfileModal();
+  document.getElementById('program-section').style.display = 'none';
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('intake-section').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+/* ════════════════════════════════════════════════════════════════════ */
+/* ── SUPABASE AUTH ──                                                    */
+/* ════════════════════════════════════════════════════════════════════ */
+var authMode = 'login';
+
+function showSessionLoader() {
+  var el = document.getElementById('session-loader');
+  if (el) el.classList.add('active');
+}
+function hideSessionLoader() {
+  var el = document.getElementById('session-loader');
+  if (el) el.classList.remove('active');
+}
+
+function setAuthStatus(email) {
+  var status   = document.getElementById('auth-status');
+  var emailEl  = document.getElementById('auth-email');
+  var loginBtn = document.getElementById('login-btn');
+  if (email) {
+    emailEl.textContent = email;
+    status.style.display = 'flex';
+    if (loginBtn) loginBtn.style.display = 'none';
+  } else {
+    emailEl.textContent = '';
+    status.style.display = 'none';
+    if (loginBtn) loginBtn.style.display = 'inline-flex';
+  }
+}
+
+function openLoginModal() {
+  switchAuthTab('login');
+  showAuthModal();
+}
+
+function enterApp(user) {
+  currentUser = user || null;
+  closeAuthModal();
+  setAuthStatus(user && user.email ? user.email : '');
+  updateProgressionBtn();
+  if (pendingGenerate) {
+    pendingGenerate = false;
+    submitProfile(); // resume the generate they attempted before logging in
+    return;
+  }
+  runAppInit(); // load saved program on login/refresh
+}
+
+function showAuthModal() {
+  clearAuthFeedback();
+  document.getElementById('auth-screen').classList.add('visible');
+}
+
+function closeAuthModal() {
+  document.getElementById('auth-screen').classList.remove('visible');
+}
+
+function showAuthError(msg) {
+  var el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('auth-message').classList.remove('visible');
+}
+function clearAuthFeedback() {
+  document.getElementById('auth-error').classList.remove('visible');
+  document.getElementById('auth-message').classList.remove('visible');
+}
+function showAuthMessage(msg) {
+  var el = document.getElementById('auth-message');
+  el.textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('auth-error').classList.remove('visible');
+}
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  clearAuthFeedback();
+  var isLogin = mode === 'login';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-signup').classList.toggle('active', !isLogin);
+  document.getElementById('auth-title').textContent = isLogin ? 'Log In' : 'Sign Up';
+  document.getElementById('auth-sub').textContent = isLogin
+    ? 'Sign in to generate and save your program.'
+    : 'Create a free account to generate and save your program.';
+  document.getElementById('auth-submit-btn').textContent = isLogin ? 'Log In' : 'Create Account';
+  document.getElementById('auth-password-input').setAttribute('autocomplete', isLogin ? 'current-password' : 'new-password');
+}
+
+function handleAuthSubmit() {
+  if (!supabaseClient) {
+    showAuthError('Auth library failed to load. Disable ad/tracker blockers for this site and reload.');
+    return;
+  }
+  if (authMode === 'login') handleLogin();
+  else handleSignup();
+}
+
+// Turns a raw auth error into a message that points at the ACTUAL cause.
+// "Failed to fetch" is never a credentials problem — it means the request
+// never reached Supabase (paused project, wrong URL, or a blocker/CSP).
+function friendlyAuthError(msg) {
+  if (!msg) return 'Something went wrong. Try again.';
+  var m = String(msg);
+  if (/failed to fetch|networkerror|load failed|fetch/i.test(m)) {
+    return "Couldn't reach Supabase. Check that the project isn't paused, the URL is correct, and no ad/tracker blocker is blocking supabase.co.";
+  }
+  return m;
+}
+
+async function handleLogin() {
+  var email = document.getElementById('auth-email-input').value.trim();
+  var password = document.getElementById('auth-password-input').value;
+  var btn = document.getElementById('auth-submit-btn');
+  clearAuthFeedback();
+  if (!email || !password) { showAuthError('Enter your email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Logging in…';
+  try {
+    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    if (res.error) { showAuthError(friendlyAuthError(res.error.message)); btn.disabled = false; btn.textContent = 'Log In'; return; }
+    // onAuthStateChange handles entering the app.
+  } catch (e) {
+    showAuthError(friendlyAuthError(e && e.message));
+    btn.disabled = false; btn.textContent = 'Log In';
+  }
+}
+
+async function handleSignup() {
+  var email = document.getElementById('auth-email-input').value.trim();
+  var password = document.getElementById('auth-password-input').value;
+  var btn = document.getElementById('auth-submit-btn');
+  clearAuthFeedback();
+  if (!email || !password) { showAuthError('Enter an email and password.'); return; }
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    var res = await supabaseClient.auth.signUp({ email: email, password: password });
+    if (res.error) { showAuthError(friendlyAuthError(res.error.message)); btn.disabled = false; btn.textContent = 'Create Account'; return; }
+    btn.disabled = false; btn.textContent = 'Create Account';
+    // If email confirmation is ON (Supabase default), no session is returned yet.
+    if (res.data && res.data.session) {
+      // Confirmation disabled — onAuthStateChange will log them straight in.
+    } else {
+      switchAuthTab('login');
+      document.getElementById('auth-email-input').value = email;
+      showAuthMessage('Account created. Check your email to confirm, then log in.');
+    }
+  } catch (e) {
+    showAuthError(friendlyAuthError(e && e.message));
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+async function handleLogout() {
+  try { await supabaseClient.auth.signOut(); } catch (e) {}
+  // onAuthStateChange handles showing the auth screen.
+}
+
+async function bootstrapAuth() {
+  // App is always visible — landing page is public, no gate on load
+  document.getElementById('app-root').style.display = 'block';
+
+  if (!supabaseClient) {
+    return; // auth library didn't load; app still shows, generate will error
+  }
+
+  // Silently restore session — sets header + loads saved program if logged in
+  try {
+    var res = await supabaseClient.auth.getSession();
+    var session = res && res.data ? res.data.session : null;
+    if (session && session.user) {
+      currentUser = session.user;
+      setAuthStatus(session.user.email);
+      // Show loader immediately — hide landing page so there's no flash while
+      // we fetch their program. loadInitialData() hides the loader when done.
+      showSessionLoader();
+      var lp = document.getElementById('landing-page');
+      if (lp) lp.style.display = 'none';
+      document.getElementById('intake-section').style.display = 'none';
+      runAppInit();
+    }
+  } catch(e) {}
+
+  // React to login / logout transitions
+  supabaseClient.auth.onAuthStateChange(function(event, session) {
+    if (session && session.user) {
+      enterApp(session.user);
+    } else {
+      appInitialized = false;
+      currentUser = null;
+      currentProfile = null;
+      pendingGenerate = false;
+      resetProgramState();
+      setAuthStatus('');
+      closeAuthModal();
+      // Return to landing page after logout
+      var lp = document.getElementById('landing-page');
+      if (lp) lp.style.display = 'block';
+      document.getElementById('intake-section').style.display = 'none';
+      document.getElementById('program-section').style.display = 'none';
+    }
+  });
+}
+
+bootstrapAuth();
+</script>
+</body>
+</html>
